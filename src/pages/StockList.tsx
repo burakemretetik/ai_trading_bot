@@ -6,13 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Stock } from '@/utils/types';
 import { mockStocks, createMockStocksFromCSV } from '@/utils/mockData';
 import { toast } from 'sonner';
-import { useUser } from '@/context/UserContext';
 import { getTrackedStocks, trackStock, untrackStock } from '@/services/stockService';
 
 const StockList = () => {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState(true);
-  const { session } = useUser();
 
   useEffect(() => {
     const loadStocks = async () => {
@@ -21,14 +19,14 @@ const StockList = () => {
         // Try to load stocks from CSV
         const csvStocks = await createMockStocksFromCSV();
         
-        // Get tracked stocks from Supabase
+        // Get tracked stocks from localStorage
         const trackedStockIds = await getTrackedStocks();
         
-        console.log('Tracked stock IDs from Supabase:', trackedStockIds);
+        console.log('Tracked stock IDs:', trackedStockIds);
         
         // Use CSV data if available, otherwise fall back to mock data
         if (csvStocks && csvStocks.length > 0) {
-          // Update tracking status based on Supabase data
+          // Update tracking status based on localStorage data
           const updatedStocks = csvStocks.map(stock => ({
             ...stock,
             tracked: trackedStockIds.includes(stock.id)
@@ -36,7 +34,7 @@ const StockList = () => {
           
           setStocks(updatedStocks);
         } else {
-          // For mock data, also check Supabase
+          // For mock data, also check localStorage
           const updatedMockStocks = mockStocks.map(stock => ({
             ...stock,
             tracked: trackedStockIds.includes(stock.id)
@@ -47,7 +45,7 @@ const StockList = () => {
       } catch (error) {
         console.error('Error loading stocks:', error);
         
-        // For error fallback, also check Supabase
+        // For error fallback, also check localStorage
         const trackedStockIds = await getTrackedStocks();
         
         const updatedMockStocks = mockStocks.map(stock => ({
@@ -62,18 +60,10 @@ const StockList = () => {
       }
     };
     
-    // Only load stocks if user is authenticated
-    if (session.user && !session.isLoading) {
-      loadStocks();
-    }
-  }, [session]);
+    loadStocks();
+  }, []);
 
   const handleToggleTracking = async (id: string) => {
-    if (!session.user) {
-      toast.error('Bu işlem için giriş yapmalısınız');
-      return;
-    }
-    
     const stockToUpdate = stocks.find(stock => stock.id === id);
     if (!stockToUpdate) return;
     

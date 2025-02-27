@@ -9,7 +9,6 @@ import Index from "./pages/Index";
 import StockList from "./pages/StockList";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -22,8 +21,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-            <Route path="/stocks" element={<ProtectedRoute><StockList /></ProtectedRoute>} />
+            <Route path="/" element={<Index />} />
+            <Route path="/stocks" element={<StockList />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,52 +1,16 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Session } from '@/utils/types';
+import React, { createContext, useContext } from 'react';
 import { UserContextType } from './types';
-import { 
-  signIn, 
-  signUp, 
-  signOut, 
-  resendConfirmationEmail, 
-  resetPassword 
-} from './authFunctions';
-import { checkSession, setupAuthListener } from './sessionManager';
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [session, setSession] = useState<Session>({
-    user: null,
-    isLoading: true,
-  });
-
-  useEffect(() => {
-    // Check for active session on component mount
-    const initializeSession = async () => {
-      const sessionData = await checkSession();
-      setSession(sessionData);
-    };
-
-    initializeSession();
-
-    // Subscribe to auth changes
-    const authListener = setupAuthListener(setSession);
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, []);
+  const contextValue: UserContextType = {
+    isLoading: false
+  };
 
   return (
-    <UserContext.Provider
-      value={{
-        session,
-        signIn,
-        signUp,
-        signOut,
-        resendConfirmationEmail,
-        resetPassword,
-      }}
-    >
+    <UserContext.Provider value={contextValue}>
       {children}
     </UserContext.Provider>
   );
