@@ -20,13 +20,42 @@ const StockList = () => {
         
         // Use CSV data if available, otherwise fall back to mock data
         if (csvStocks && csvStocks.length > 0) {
-          setStocks(csvStocks);
+          // Check localStorage for tracked stocks
+          const trackedStocksData = localStorage.getItem('trackedStocks');
+          const trackedStockIds = trackedStocksData ? JSON.parse(trackedStocksData) : [];
+          
+          // Update tracking status based on localStorage
+          const updatedStocks = csvStocks.map(stock => ({
+            ...stock,
+            tracked: trackedStockIds.includes(stock.id)
+          }));
+          
+          setStocks(updatedStocks);
         } else {
-          setStocks(mockStocks);
+          // For mock data, also check localStorage
+          const trackedStocksData = localStorage.getItem('trackedStocks');
+          const trackedStockIds = trackedStocksData ? JSON.parse(trackedStocksData) : [];
+          
+          const updatedMockStocks = mockStocks.map(stock => ({
+            ...stock,
+            tracked: trackedStockIds.includes(stock.id)
+          }));
+          
+          setStocks(updatedMockStocks);
         }
       } catch (error) {
         console.error('Error loading stocks:', error);
-        setStocks(mockStocks);
+        
+        // For error fallback, also check localStorage
+        const trackedStocksData = localStorage.getItem('trackedStocks');
+        const trackedStockIds = trackedStocksData ? JSON.parse(trackedStocksData) : [];
+        
+        const updatedMockStocks = mockStocks.map(stock => ({
+          ...stock,
+          tracked: trackedStockIds.includes(stock.id)
+        }));
+        
+        setStocks(updatedMockStocks);
         toast.error('Hisse verileri yüklenirken bir hata oluştu');
       } finally {
         setLoading(false);
@@ -38,12 +67,22 @@ const StockList = () => {
       loadStocks();
     }, 800);
     
-    return () => clearTimeout(timer);
+    // Add event listener for localStorage changes
+    const handleStorageChange = () => {
+      loadStocks();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const handleToggleTracking = (id: string) => {
-    setStocks(prev => 
-      prev.map(s => {
+    setStocks(prev => {
+      const updatedStocks = prev.map(s => {
         if (s.id === id) {
           const newTrackedState = !s.tracked;
           
@@ -57,8 +96,20 @@ const StockList = () => {
           return { ...s, tracked: newTrackedState };
         }
         return s;
-      })
-    );
+      });
+      
+      // Update localStorage with the new tracked stocks
+      const trackedStockIds = updatedStocks
+        .filter(stock => stock.tracked)
+        .map(stock => stock.id);
+      
+      localStorage.setItem('trackedStocks', JSON.stringify(trackedStockIds));
+      
+      // Dispatch storage event for other pages
+      window.dispatchEvent(new Event('storage'));
+      
+      return updatedStocks;
+    });
   };
 
   return (

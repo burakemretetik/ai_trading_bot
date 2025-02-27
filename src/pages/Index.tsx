@@ -23,15 +23,41 @@ export default function Index() {
         // Try to load stocks from CSV
         const csvStocks = await createMockStocksFromCSV();
         
+        // Get tracked stocks from localStorage
+        const trackedStocksData = localStorage.getItem('trackedStocks');
+        const trackedStockIds = trackedStocksData ? JSON.parse(trackedStocksData) : [];
+        
         // Use CSV data if available, otherwise fall back to mock data
         if (csvStocks && csvStocks.length > 0) {
-          setStocks(csvStocks);
+          // Update tracking status based on localStorage
+          const updatedStocks = csvStocks.map(stock => ({
+            ...stock,
+            tracked: trackedStockIds.includes(stock.id)
+          }));
+          
+          setStocks(updatedStocks);
         } else {
-          setStocks(mockStocks);
+          // For mock data, also check localStorage
+          const updatedMockStocks = mockStocks.map(stock => ({
+            ...stock,
+            tracked: trackedStockIds.includes(stock.id)
+          }));
+          
+          setStocks(updatedMockStocks);
         }
       } catch (error) {
         console.error('Error loading stocks:', error);
-        setStocks(mockStocks);
+        
+        // For error fallback, also check localStorage
+        const trackedStocksData = localStorage.getItem('trackedStocks');
+        const trackedStockIds = trackedStocksData ? JSON.parse(trackedStocksData) : [];
+        
+        const updatedMockStocks = mockStocks.map(stock => ({
+          ...stock,
+          tracked: trackedStockIds.includes(stock.id)
+        }));
+        
+        setStocks(updatedMockStocks);
         toast.error('Hisse verileri yüklenirken bir hata oluştu');
       } finally {
         setLoading(false);
@@ -43,15 +69,25 @@ export default function Index() {
       loadStocks();
     }, 800);
     
-    return () => clearTimeout(timer);
+    // Add event listener for localStorage changes
+    const handleStorageChange = () => {
+      loadStocks();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
   
   const trackedStocks = stocks.filter(stock => stock.tracked);
   const hasNewsInTrackedStocks = trackedStocks.some(stock => stock.news.length > 0);
   
   const handleToggleTracking = (id: string) => {
-    setStocks(prevStocks => 
-      prevStocks.map(stock => {
+    setStocks(prevStocks => {
+      const updatedStocks = prevStocks.map(stock => {
         if (stock.id === id) {
           const newTrackedState = !stock.tracked;
           
@@ -64,8 +100,20 @@ export default function Index() {
           return { ...stock, tracked: newTrackedState };
         }
         return stock;
-      })
-    );
+      });
+      
+      // Update localStorage with the new tracked stocks
+      const trackedStockIds = updatedStocks
+        .filter(stock => stock.tracked)
+        .map(stock => stock.id);
+      
+      localStorage.setItem('trackedStocks', JSON.stringify(trackedStockIds));
+      
+      // Dispatch storage event for other pages
+      window.dispatchEvent(new Event('storage'));
+      
+      return updatedStocks;
+    });
   };
   
   const handleAddStock = (stock: Stock) => {
