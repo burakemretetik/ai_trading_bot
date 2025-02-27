@@ -16,7 +16,7 @@ export const mockStocks: Stock[] = [
         source: 'TechCrunch',
         url: '#',
         publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-        summary: 'Apple today introduced the new MacBook Air with the powerful M3 chip, delivering even more performance and capabilities to the world's most popular laptop.',
+        summary: "Apple today introduced the new MacBook Air with the powerful M3 chip, delivering even more performance and capabilities to the world's most popular laptop.",
         signalStrength: 'strong'
       },
       {
@@ -25,7 +25,7 @@ export const mockStocks: Stock[] = [
         source: 'Bloomberg',
         url: '#',
         publishedAt: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
-        summary: 'Apple's services segment continues to grow at a robust rate, potentially offsetting any slowdown in hardware sales according to analysts.',
+        summary: "Apple's services segment continues to grow at a robust rate, potentially offsetting any slowdown in hardware sales according to analysts.",
         signalStrength: 'medium'
       }
     ]
@@ -63,7 +63,7 @@ export const mockStocks: Stock[] = [
         source: 'The Wall Street Journal',
         url: '#',
         publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-        summary: 'Regulators announced a new probe into Google's advertising practices, citing potential monopolistic behavior.',
+        summary: "Regulators announced a new probe into Google's advertising practices, citing potential monopolistic behavior.",
         signalStrength: 'weak'
       }
     ]
