@@ -74,10 +74,22 @@ export default function Index() {
     
     handleToggleTracking(stock.id);
   };
+
+  const handleSearchClick = () => {
+    setIsSearchOpen(true);
+  };
+
+  const handleSettingsClick = () => {
+    // This would be implemented when settings functionality is needed
+    toast('Settings functionality will be added soon');
+  };
   
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header 
+        onSearchClick={handleSearchClick}
+        onSettingsClick={handleSettingsClick}
+      />
       
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
@@ -119,7 +131,7 @@ export default function Index() {
             ))}
           </div>
         ) : (
-          <EmptyState />
+          <EmptyState onSearchClick={handleSearchClick} />
         )}
       </main>
       

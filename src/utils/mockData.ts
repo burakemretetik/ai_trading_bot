@@ -1,5 +1,5 @@
 
-import { Stock, EmailSettings } from './types';
+import { Stock, EmailSettings, SignalStrength } from './types';
 
 // Base mock news data that we'll reuse
 const mockNewsItems = [
@@ -10,7 +10,7 @@ const mockNewsItems = [
     url: '#',
     publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
     summary: "Şirket yönetimi yeni stratejik yatırımı düzenlenen basın toplantısında duyurdu. Bu yatırım, şirketin büyüme hedeflerine önemli katkı sağlayacak.",
-    signalStrength: 'strong'
+    signalStrength: 'strong' as SignalStrength
   },
   {
     id: '201',
@@ -19,7 +19,7 @@ const mockNewsItems = [
     url: '#',
     publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     summary: 'Şirketin üçüncü çeyrek finansal sonuçları analist beklentilerinin üzerinde gerçekleşti. Hisse senedi değer kazanıyor.',
-    signalStrength: 'medium'
+    signalStrength: 'medium' as SignalStrength
   },
   {
     id: '301',
@@ -28,7 +28,7 @@ const mockNewsItems = [
     url: '#',
     publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
     summary: "Şirket, yeni teknoloji yatırımlarını duyurdu. Bu yatırım, şirketin rekabet gücünü artıracak ve operasyonel verimliliğe katkı sağlayacak.",
-    signalStrength: 'strong'
+    signalStrength: 'strong' as SignalStrength
   },
   {
     id: '401',
@@ -37,7 +37,7 @@ const mockNewsItems = [
     url: '#',
     publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
     summary: 'Şirketin yönetim kurulunda önemli değişiklikler yaşandı. Yeni atamalar şirketin stratejik hedeflerine ulaşmasına katkı sağlayacak.',
-    signalStrength: 'neutral'
+    signalStrength: 'neutral' as SignalStrength
   },
   {
     id: '501',
@@ -46,7 +46,7 @@ const mockNewsItems = [
     url: '#',
     publishedAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
     summary: 'Şirket, üretim kapasitesini artırmak için yeni yatırım projesini hayata geçireceğini duyurdu.',
-    signalStrength: 'medium'
+    signalStrength: 'medium' as SignalStrength
   }
 ];
 
@@ -64,8 +64,13 @@ export const createMockStocksFromCSV = async () => {
       
       // Assign random news items to some stocks
       const hasNews = Math.random() > 0.6;
+      const randomSignalStrength: SignalStrength[] = ['strong', 'medium', 'weak', 'neutral'];
       const news = hasNews 
-        ? [mockNewsItems[Math.floor(Math.random() * mockNewsItems.length)]]
+        ? [{
+            ...mockNewsItems[Math.floor(Math.random() * mockNewsItems.length)],
+            // Ensure signalStrength is correctly typed
+            signalStrength: randomSignalStrength[Math.floor(Math.random() * randomSignalStrength.length)]
+          }]
         : [];
       
       return {
@@ -100,7 +105,7 @@ export const mockStocks: Stock[] = [
         url: '#',
         publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
         summary: "Aselsan, yeni geliştirdiği savunma sistemini düzenlenen basın toplantısında duyurdu. Sistem, Türkiye'nin savunma yeteneğini önemli ölçüde artıracak.",
-        signalStrength: 'strong'
+        signalStrength: 'strong' as SignalStrength
       }
     ]
   },
@@ -117,7 +122,7 @@ export const mockStocks: Stock[] = [
         url: '#',
         publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
         summary: 'Türkiye Garanti Bankası, dijital bankacılık kullanıcı sayısının 12 milyonu aştığını ve mobil işlemlerde rekor kırıldığını açıkladı.',
-        signalStrength: 'medium'
+        signalStrength: 'medium' as SignalStrength
       }
     ]
   },
@@ -134,7 +139,7 @@ export const mockStocks: Stock[] = [
         url: '#',
         publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
         summary: "Türk Hava Yolları, filosunu genişletmek için yeni uçak siparişlerini duyurdu. Bu yatırım, şirketin büyüme stratejisinin önemli bir adımı olarak görülüyor.",
-        signalStrength: 'strong'
+        signalStrength: 'strong' as SignalStrength
       }
     ]
   },
@@ -151,7 +156,7 @@ export const mockStocks: Stock[] = [
         url: '#',
         publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
         summary: 'Koç Holding, önümüzdeki beş yıl için yeni yatırım planlarını ve stratejik hedeflerini açıkladı.',
-        signalStrength: 'neutral'
+        signalStrength: 'neutral' as SignalStrength
       }
     ]
   },
@@ -168,7 +173,7 @@ export const mockStocks: Stock[] = [
         url: '#',
         publishedAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
         summary: 'Ereğli Demir ve Çelik Fabrikaları, üretim kapasitesini artırmak için yeni yatırım projesini hayata geçireceğini duyurdu.',
-        signalStrength: 'medium'
+        signalStrength: 'medium' as SignalStrength
       }
     ]
   }
