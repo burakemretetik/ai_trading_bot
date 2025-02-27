@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Plus, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { mockStocks, createMockStocksFromCSV } from '@/utils/mockData';
-import { Stock, NewsItem } from '@/utils/types';
+import { Stock } from '@/utils/types';
 import EmptyState from '@/components/EmptyState';
 import Header from '@/components/Header';
 import StockCard from '@/components/StockCard';
@@ -124,27 +124,6 @@ export default function Index() {
     handleToggleTracking(stock.id);
   };
 
-  const handleAddNewsToStock = (stockId: string, newsItem: NewsItem) => {
-    setStocks(prevStocks => 
-      prevStocks.map(stock => {
-        if (stock.id === stockId) {
-          // Check if the news item already exists
-          const existingNews = stock.news.find(item => item.id === newsItem.id);
-          if (existingNews) {
-            return stock; // News already exists, don't add it again
-          }
-          
-          // Add the new news item
-          return {
-            ...stock,
-            news: [newsItem, ...stock.news]
-          };
-        }
-        return stock;
-      })
-    );
-  };
-
   const handleSearchClick = () => {
     setIsSearchOpen(true);
   };
@@ -203,7 +182,6 @@ export default function Index() {
                   key={stock.id}
                   stock={stock}
                   onToggleTracking={handleToggleTracking}
-                  onAddNewsToStock={handleAddNewsToStock}
                 />
               ))}
             </div>
