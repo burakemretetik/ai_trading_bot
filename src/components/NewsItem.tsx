@@ -2,7 +2,6 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { NewsItem as NewsItemType } from '@/utils/types';
-import SignalIndicator from './SignalIndicator';
 import { formatDistanceToNow } from 'date-fns';
 
 interface NewsItemProps {
@@ -19,7 +18,6 @@ const NewsItem: React.FC<NewsItemProps> = ({ news }) => {
           <span className="text-xs font-medium bg-secondary px-2 py-1 rounded-full">{news.source}</span>
           <span className="text-xs text-muted-foreground ml-2">{formattedDate}</span>
         </div>
-        <SignalIndicator strength={news.signalStrength} showLabel />
       </div>
       
       <h3 className="font-semibold text-base mb-2">{news.title}</h3>

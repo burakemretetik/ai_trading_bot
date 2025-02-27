@@ -1,6 +1,4 @@
 
-export type SignalStrength = "strong" | "medium" | "weak" | "neutral";
-
 export interface NewsItem {
   id: string;
   title: string;
@@ -8,7 +6,6 @@ export interface NewsItem {
   url: string;
   publishedAt: string;
   summary: string;
-  signalStrength: SignalStrength;
 }
 
 export interface Stock {
@@ -23,5 +20,5 @@ export interface EmailSettings {
   enabled: boolean;
   address: string;
   frequency: "instant" | "daily" | "weekly";
-  signalThreshold: SignalStrength;
+  signalThreshold: string;
 }

@@ -47,6 +47,7 @@ export default function Index() {
   }, []);
   
   const trackedStocks = stocks.filter(stock => stock.tracked);
+  const hasNewsInTrackedStocks = trackedStocks.some(stock => stock.news.length > 0);
   
   const handleToggleTracking = (id: string) => {
     setStocks(prevStocks => 
@@ -121,15 +122,22 @@ export default function Index() {
             ))}
           </div>
         ) : trackedStocks.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {trackedStocks.map(stock => (
-              <StockCard
-                key={stock.id}
-                stock={stock}
-                onToggleTracking={handleToggleTracking}
-              />
-            ))}
-          </div>
+          <>
+            {!hasNewsInTrackedStocks && (
+              <div className="p-8 text-center bg-muted rounded-lg mb-6">
+                <p className="text-lg font-medium">Takip ettiğiniz hisselerle ilgili yeni bir gelişme yok.</p>
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {trackedStocks.map(stock => (
+                <StockCard
+                  key={stock.id}
+                  stock={stock}
+                  onToggleTracking={handleToggleTracking}
+                />
+              ))}
+            </div>
+          </>
         ) : (
           <EmptyState onSearchClick={handleSearchClick} />
         )}
