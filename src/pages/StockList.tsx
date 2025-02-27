@@ -74,11 +74,9 @@ const StockList = () => {
             
             <div className="bg-card rounded-lg border overflow-hidden">
               <div className="grid grid-cols-12 px-4 py-3 bg-muted/50 border-b text-sm font-medium">
-                <div className="col-span-2">Sembol</div>
-                <div className="col-span-5">Şirket Adı</div>
-                <div className="col-span-2 text-right">Fiyat</div>
-                <div className="col-span-2 text-right">Değişim</div>
-                <div className="col-span-1 text-center">Takip</div>
+                <div className="col-span-3">Sembol</div>
+                <div className="col-span-7">Şirket Adı</div>
+                <div className="col-span-2 text-center">Takip</div>
               </div>
               
               {stocks.map(stock => (
@@ -86,17 +84,11 @@ const StockList = () => {
                   key={stock.id} 
                   className="grid grid-cols-12 px-4 py-4 border-b last:border-b-0 items-center hover:bg-muted/30 transition-colors"
                 >
-                  <div className="col-span-2 font-medium">{stock.symbol}</div>
-                  <div className="col-span-5 text-sm truncate" title={stock.name}>
+                  <div className="col-span-3 font-medium">{stock.symbol}</div>
+                  <div className="col-span-7 text-sm truncate" title={stock.name}>
                     {stock.name}
                   </div>
-                  <div className="col-span-2 text-right font-medium">
-                    {stock.price.toFixed(2)} ₺
-                  </div>
-                  <div className={`col-span-2 text-right font-medium flex items-center justify-end ${stock.priceChange >= 0 ? 'text-signal-strong' : 'text-signal-weak'}`}>
-                    {stock.priceChange > 0 ? '+' : ''}{stock.priceChange.toFixed(2)} ₺
-                  </div>
-                  <div className="col-span-1 flex justify-center">
+                  <div className="col-span-2 flex justify-center">
                     <Button 
                       variant={stock.tracked ? "default" : "outline"} 
                       size="sm"

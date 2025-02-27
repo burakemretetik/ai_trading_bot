@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronUp, ChevronDown, Star, BellRing } from 'lucide-react';
+import { Star, BellRing } from 'lucide-react';
 import { Stock } from '@/utils/types';
 import { Button } from '@/components/ui/button';
 import NewsItem from './NewsItem';
@@ -11,7 +11,6 @@ interface StockCardProps {
 }
 
 const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
-  const priceIsPositive = stock.priceChange >= 0;
   const hasStrongSignal = stock.news.some(n => n.signalStrength === 'strong');
   
   return (
@@ -40,18 +39,6 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
           >
             <Star className={`h-5 w-5 ${stock.tracked ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
           </Button>
-        </div>
-        
-        <div className="mt-3 flex items-center">
-          <span className="text-2xl font-semibold">${stock.price.toFixed(2)}</span>
-          <div className={`flex items-center ml-2 ${priceIsPositive ? 'text-signal-strong' : 'text-signal-weak'}`}>
-            {priceIsPositive ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-            <span className="text-sm font-medium">{Math.abs(stock.priceChange).toFixed(2)}</span>
-          </div>
         </div>
       </div>
       

@@ -15,8 +15,6 @@ export interface Stock {
   id: string;
   symbol: string;
   name: string;
-  price: number;
-  priceChange: number;
   tracked: boolean;
   news: NewsItem[];
 }
