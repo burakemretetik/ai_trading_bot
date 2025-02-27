@@ -218,7 +218,10 @@ export default function Auth() {
               <Button 
                 variant="default" 
                 className="w-full" 
-                onClick={() => setActiveTab('signin')}
+                onClick={() => {
+                  setShowEmailConfirmation(false);
+                  setActiveTab('signin');
+                }}
               >
                 Giriş sayfasına dön
               </Button>
