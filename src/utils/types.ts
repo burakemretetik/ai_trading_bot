@@ -24,3 +24,14 @@ export interface EmailSettings {
 }
 
 export type SignalStrength = "strong" | "medium" | "weak" | "neutral";
+
+export interface UserProfile {
+  id: string;
+  username: string | null;
+  avatar_url: string | null;
+}
+
+export interface Session {
+  user: UserProfile | null;
+  isLoading: boolean;
+}

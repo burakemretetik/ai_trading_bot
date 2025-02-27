@@ -10,11 +10,14 @@ import Header from '@/components/Header';
 import StockCard from '@/components/StockCard';
 import SearchBar from '@/components/SearchBar';
 import { toast } from 'sonner';
+import { useUser } from '@/context/UserContext';
+import { getTrackedStocks, trackStock, untrackStock } from '@/services/stockService';
 
 export default function Index() {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { session } = useUser();
   
   useEffect(() => {
     const loadStocks = async () => {
@@ -23,13 +26,14 @@ export default function Index() {
         // Try to load stocks from CSV
         const csvStocks = await createMockStocksFromCSV();
         
-        // Get tracked stocks from localStorage
-        const trackedStocksData = localStorage.getItem('trackedStocks');
-        const trackedStockIds = trackedStocksData ? JSON.parse(trackedStocksData) : [];
+        // Get tracked stocks from Supabase
+        const trackedStockIds = await getTrackedStocks();
+        
+        console.log('Tracked stock IDs from Supabase:', trackedStockIds);
         
         // Use CSV data if available, otherwise fall back to mock data
         if (csvStocks && csvStocks.length > 0) {
-          // Update tracking status based on localStorage
+          // Update tracking status based on Supabase data
           const updatedStocks = csvStocks.map(stock => ({
             ...stock,
             tracked: trackedStockIds.includes(stock.id)
@@ -37,7 +41,7 @@ export default function Index() {
           
           setStocks(updatedStocks);
         } else {
-          // For mock data, also check localStorage
+          // For mock data, also check Supabase
           const updatedMockStocks = mockStocks.map(stock => ({
             ...stock,
             tracked: trackedStockIds.includes(stock.id)
@@ -48,9 +52,8 @@ export default function Index() {
       } catch (error) {
         console.error('Error loading stocks:', error);
         
-        // For error fallback, also check localStorage
-        const trackedStocksData = localStorage.getItem('trackedStocks');
-        const trackedStockIds = trackedStocksData ? JSON.parse(trackedStocksData) : [];
+        // For error fallback, also check Supabase
+        const trackedStockIds = await getTrackedStocks();
         
         const updatedMockStocks = mockStocks.map(stock => ({
           ...stock,
@@ -64,59 +67,71 @@ export default function Index() {
       }
     };
     
-    // Add a small delay to simulate loading from an API
-    const timer = setTimeout(() => {
+    // Only load stocks if user is authenticated
+    if (session.user && !session.isLoading) {
       loadStocks();
-    }, 800);
-    
-    // Add event listener for localStorage changes
-    const handleStorageChange = () => {
-      loadStocks();
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
+    }
+  }, [session]);
   
   const trackedStocks = stocks.filter(stock => stock.tracked);
   const hasNewsInTrackedStocks = trackedStocks.some(stock => stock.news.length > 0);
   
-  const handleToggleTracking = (id: string) => {
-    setStocks(prevStocks => {
-      const updatedStocks = prevStocks.map(stock => {
+  const handleToggleTracking = async (id: string) => {
+    if (!session.user) {
+      toast.error('Bu işlem için giriş yapmalısınız');
+      return;
+    }
+    
+    const stockToUpdate = stocks.find(stock => stock.id === id);
+    if (!stockToUpdate) return;
+    
+    setStocks(prevStocks => 
+      prevStocks.map(stock => {
         if (stock.id === id) {
           const newTrackedState = !stock.tracked;
-          
-          if (newTrackedState) {
-            toast.success(`${stock.symbol} hisse takibinize eklendi`);
-          } else {
-            toast(`${stock.symbol} hisse takibinizden çıkarıldı`);
-          }
-          
           return { ...stock, tracked: newTrackedState };
         }
         return stock;
-      });
+      })
+    );
+    
+    try {
+      if (!stockToUpdate.tracked) {
+        // Track the stock
+        const success = await trackStock(id);
+        if (success) {
+          toast.success(`${stockToUpdate.symbol} hisse takibinize eklendi`);
+        }
+      } else {
+        // Untrack the stock
+        const success = await untrackStock(id);
+        if (success) {
+          toast(`${stockToUpdate.symbol} hisse takibinizden çıkarıldı`);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling stock tracking:', error);
       
-      // Update localStorage with the new tracked stocks
-      const trackedStockIds = updatedStocks
-        .filter(stock => stock.tracked)
-        .map(stock => stock.id);
+      // Revert the UI change if the API call failed
+      setStocks(prevStocks => 
+        prevStocks.map(stock => {
+          if (stock.id === id) {
+            return { ...stock, tracked: stockToUpdate.tracked };
+          }
+          return stock;
+        })
+      );
       
-      localStorage.setItem('trackedStocks', JSON.stringify(trackedStockIds));
-      
-      // Dispatch storage event for other pages
-      window.dispatchEvent(new Event('storage'));
-      
-      return updatedStocks;
-    });
+      toast.error('İşlem sırasında bir hata oluştu');
+    }
   };
   
-  const handleAddStock = (stock: Stock) => {
+  const handleAddStock = async (stock: Stock) => {
+    if (!session.user) {
+      toast.error('Bu işlem için giriş yapmalısınız');
+      return;
+    }
+    
     if (!stocks.some(s => s.id === stock.id)) {
       setStocks(prev => [...prev, stock]);
     }
