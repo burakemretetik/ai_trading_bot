@@ -4,7 +4,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '@/context/UserContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -17,8 +16,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState('signin');
-  const { session, signIn, signUp, resendConfirmationEmail, resetPassword } = useUser();
+  const { session, signUp, resendConfirmationEmail, resetPassword } = useUser();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -34,21 +32,6 @@ export default function Auth() {
       setShowResetPassword(true);
     }
   }, [session, navigate, searchParams]);
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) return;
-    
-    setLoading(true);
-    try {
-      const { error } = await signIn(email, password);
-      if (!error) {
-        navigate('/');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,17 +69,6 @@ export default function Auth() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setShowEmailConfirmation(false);
-    setShowResetPassword(false);
-  };
-
-  const goBack = () => {
-    setShowEmailConfirmation(false);
-    setShowResetPassword(false);
   };
 
   if (session.isLoading) {
@@ -149,11 +121,11 @@ export default function Auth() {
                   type="button" 
                   variant="outline" 
                   className="w-full" 
-                  onClick={goBack}
+                  onClick={() => setShowResetPassword(false)}
                   disabled={loading}
                 >
                   <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                  Giriş Sayfasına Dön
+                  Kayıt Sayfasına Dön
                 </Button>
               </CardFooter>
             </form>
@@ -207,7 +179,7 @@ export default function Auth() {
                 </Button>
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-2">
+            <CardFooter>
               <Button 
                 variant="outline" 
                 className="w-full" 
@@ -215,134 +187,62 @@ export default function Auth() {
               >
                 Farklı bir email ile deneyin
               </Button>
-              <Button 
-                variant="default" 
-                className="w-full" 
-                onClick={() => {
-                  setShowEmailConfirmation(false);
-                  setActiveTab('signin');
-                }}
-              >
-                Giriş sayfasına dön
-              </Button>
             </CardFooter>
           </Card>
         ) : (
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">Giriş Yap</TabsTrigger>
-              <TabsTrigger value="signup">Kayıt Ol</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="signin">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Giriş Yap</CardTitle>
-                  <CardDescription>
-                    Takip ettiğiniz hisseleri görmek için giriş yapın.
-                  </CardDescription>
-                </CardHeader>
-                <form onSubmit={handleSignIn}>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="mail@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Şifre</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <Button 
-                      type="button" 
-                      variant="link" 
-                      className="p-0 h-auto"
-                      onClick={() => setShowResetPassword(true)}
-                    >
-                      Şifrenizi mi unuttunuz?
-                    </Button>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      type="submit" 
-                      className="w-full" 
-                      disabled={loading}
-                    >
-                      {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
-                    </Button>
-                  </CardFooter>
-                </form>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Kayıt Ol</CardTitle>
-                  <CardDescription>
-                    Hisse takibi yapmak için yeni bir hesap oluşturun.
-                  </CardDescription>
-                </CardHeader>
-                <form onSubmit={handleSignUp}>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email">Email</Label>
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="mail@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="username">Kullanıcı Adı</Label>
-                      <Input
-                        id="username"
-                        type="text"
-                        placeholder="kullanici_adi"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password">Şifre</Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      type="submit" 
-                      className="w-full" 
-                      disabled={loading}
-                    >
-                      {loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
-                    </Button>
-                  </CardFooter>
-                </form>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <Card>
+            <CardHeader>
+              <CardTitle>Kayıt Ol</CardTitle>
+              <CardDescription>
+                Hisse takibi yapmak için yeni bir hesap oluşturun.
+              </CardDescription>
+            </CardHeader>
+            <form onSubmit={handleSignUp}>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="mail@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="username">Kullanıcı Adı</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="kullanici_adi"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Şifre</Label>
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={loading}
+                >
+                  {loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
         )}
       </div>
     </div>
