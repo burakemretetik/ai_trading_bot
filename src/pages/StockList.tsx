@@ -1,25 +1,45 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, X, ArrowLeft } from 'lucide-react';
+import { Check, X, ArrowLeft, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Stock } from '@/utils/types';
 import { mockStocks } from '@/utils/mockData';
 import { toast } from 'sonner';
+import { stockApi } from '@/services/stockApi';
+import { useQuery } from '@tanstack/react-query';
 
 const StockList = () => {
   const [stocks, setStocks] = useState<Stock[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Simulate API loading
-    const timer = setTimeout(() => {
-      setStocks(mockStocks);
-      setLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, []);
+  // React Query hook to fetch data
+  const { isLoading, isError, data, refetch } = useQuery({
+    queryKey: ['stocks'],
+    queryFn: async () => {
+      const response = await stockApi.getAllStocks();
+      if (!response.success) {
+        throw new Error(response.error);
+      }
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data) {
+        // Set tracked status based on current state to maintain user selections
+        const updatedStocks = data.map(newStock => {
+          const existingStock = stocks.find(s => s.id === newStock.id);
+          return {
+            ...newStock,
+            tracked: existingStock ? existingStock.tracked : newStock.tracked
+          };
+        });
+        setStocks(updatedStocks);
+      }
+    },
+    onError: (error) => {
+      console.error('Hisse verileri alınırken hata oluştu:', error);
+      toast.error('Veriler alınamadı. Lütfen daha sonra tekrar deneyin.');
+    }
+  });
 
   const handleToggleTracking = (stock: Stock) => {
     setStocks(prev => 
@@ -41,6 +61,11 @@ const StockList = () => {
     );
   };
 
+  const handleRefresh = () => {
+    toast.info('Veriler güncelleniyor...');
+    refetch();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
@@ -53,15 +78,35 @@ const StockList = () => {
             </Button>
             <h1 className="text-xl font-semibold">Borsa İstanbul Hisseleri</h1>
           </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleRefresh}
+            disabled={isLoading}
+            className="flex items-center gap-1"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>Yenile</span>
+          </Button>
         </div>
       </header>
       
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {loading ? (
+        {isLoading ? (
           <div className="animate-pulse space-y-4">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="h-20 bg-muted rounded-lg"></div>
             ))}
+          </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="text-lg text-center text-red-500 mb-4">
+              Hisse verileri alınırken bir hata oluştu.
+            </p>
+            <Button onClick={() => refetch()} className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Tekrar Dene
+            </Button>
           </div>
         ) : (
           <div className="space-y-4">

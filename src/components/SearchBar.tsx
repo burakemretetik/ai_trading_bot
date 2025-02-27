@@ -1,10 +1,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { mockStocks } from '@/utils/mockData';
 import { Stock } from '@/utils/types';
+import { useQuery } from '@tanstack/react-query';
+import { stockApi } from '@/services/stockApi';
 
 interface SearchBarProps {
   isOpen: boolean;
@@ -17,6 +18,20 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
   const [results, setResults] = useState<Stock[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Fetch all stocks
+  const { data: stocks, isLoading, isError } = useQuery({
+    queryKey: ['search-stocks'],
+    queryFn: async () => {
+      const response = await stockApi.getAllStocks();
+      if (!response.success) {
+        throw new Error(response.error);
+      }
+      return response.data;
+    },
+    // Only fetch when search modal is open
+    enabled: isOpen,
+  });
+
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
@@ -24,8 +39,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
   }, [isOpen]);
 
   useEffect(() => {
-    if (query.length > 0) {
-      const filtered = mockStocks.filter(
+    if (stocks && query.length > 0) {
+      const filtered = stocks.filter(
         stock => 
           stock.symbol.toLowerCase().includes(query.toLowerCase()) ||
           stock.name.toLowerCase().includes(query.toLowerCase())
@@ -34,7 +49,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
     } else {
       setResults([]);
     }
-  }, [query]);
+  }, [query, stocks]);
 
   const handleAddStock = (stock: Stock) => {
     onAddStock(stock);
@@ -52,7 +67,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
           <Input
             ref={inputRef}
             type="text"
-            placeholder="Search for companies or symbols..."
+            placeholder="Şirket adı veya sembol arayın..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -68,7 +83,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
         </div>
         
         <div className="max-h-96 overflow-y-auto">
-          {results.length > 0 ? (
+          {isLoading ? (
+            <div className="py-8 flex justify-center items-center">
+              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+            </div>
+          ) : isError ? (
+            <div className="py-8 text-center">
+              <p className="text-red-500">Hisse verileri yüklenemedi.</p>
+            </div>
+          ) : results.length > 0 ? (
             <ul className="py-2">
               {results.map(stock => (
                 <li key={stock.id} className="px-4 py-3 hover:bg-secondary/50 transition-colors cursor-pointer">
@@ -82,7 +105,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
                       size="sm" 
                       className={stock.tracked ? "text-muted-foreground" : ""}
                     >
-                      {stock.tracked ? 'Tracked' : 'Add'}
+                      {stock.tracked ? 'Takipte' : 'Ekle'}
                     </Button>
                   </div>
                 </li>
@@ -90,11 +113,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
             </ul>
           ) : query.length > 0 ? (
             <div className="py-8 text-center">
-              <p className="text-muted-foreground">No results found for "{query}"</p>
+              <p className="text-muted-foreground">"{query}" için sonuç bulunamadı</p>
             </div>
           ) : (
             <div className="py-8 text-center">
-              <p className="text-muted-foreground">Start typing to search for stocks</p>
+              <p className="text-muted-foreground">Hisse aramak için yazmaya başlayın</p>
             </div>
           )}
         </div>
