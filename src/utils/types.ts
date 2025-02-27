@@ -6,6 +6,8 @@ export interface NewsItem {
   url: string;
   publishedAt: string;
   summary: string;
+  sentiment?: "positive" | "negative" | "neutral";
+  signalStrength?: SignalStrength;
 }
 
 export interface Stock {
