@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 type UserContextType = {
   session: Session;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, username: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, username: string) => Promise<{ error: any, requiresEmailConfirmation: boolean }>;
   signOut: () => Promise<void>;
 };
 
@@ -105,7 +105,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
-      // First sign up the user
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -118,27 +117,32 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (signUpError) {
         toast.error(signUpError.message);
-        return { error: signUpError };
+        return { error: signUpError, requiresEmailConfirmation: false };
       }
 
-      // If signup successful, immediately sign in
-      if (data.user) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (signInError) {
-          toast.error('Kayıt başarılı fakat giriş yapılamadı');
-          return { error: signInError };
-        }
+      // Check if email confirmation is required
+      if (data?.user?.identities && data.user.identities.length === 0) {
+        // User already exists but hasn't confirmed their email
+        toast.error('Bu email adresi zaten kayıtlı. Lütfen email adresinizi kontrol edin ve onaylayın.');
+        return { error: null, requiresEmailConfirmation: true };
       }
 
+      if (!data.user) {
+        return { error: new Error('Kayıt işlemi başarısız'), requiresEmailConfirmation: false };
+      }
+
+      if (data.user && !data.session) {
+        // Email confirmation is required
+        toast.success('Kayıt başarılı! Lütfen email adresinizi kontrol edin ve hesabınızı onaylayın.');
+        return { error: null, requiresEmailConfirmation: true };
+      }
+
+      // If we get here, user was created and automatically signed in (email confirmation disabled)
       toast.success('Kayıt başarılı, giriş yapıldı');
-      return { error: null };
+      return { error: null, requiresEmailConfirmation: false };
     } catch (error: any) {
       toast.error('Kayıt yapılamadı');
-      return { error };
+      return { error, requiresEmailConfirmation: false };
     }
   };
 
