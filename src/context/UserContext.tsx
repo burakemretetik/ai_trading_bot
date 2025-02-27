@@ -112,6 +112,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
+      // Get the current URL to use as a redirect base
+      const baseUrl = window.location.origin;
+      const redirectTo = `${baseUrl}/auth?mode=confirm`;
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -119,6 +123,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           data: {
             username,
           },
+          emailRedirectTo: redirectTo
         },
       });
 
@@ -163,12 +168,19 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // New function to resend confirmation email
+  // Updated function to resend confirmation email with correct redirect
   const resendConfirmationEmail = async (email: string) => {
     try {
+      // Get the current URL to use as a redirect base
+      const baseUrl = window.location.origin;
+      const redirectTo = `${baseUrl}/auth?mode=confirm`;
+
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email,
+        options: {
+          emailRedirectTo: redirectTo
+        }
       });
 
       if (error) {
@@ -190,11 +202,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // New function to reset password
+  // Updated function to reset password with correct redirect
   const resetPassword = async (email: string) => {
     try {
+      const baseUrl = window.location.origin;
+      const redirectTo = `${baseUrl}/auth?mode=reset`;
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/auth?mode=reset',
+        redirectTo: redirectTo,
       });
 
       if (error) {
