@@ -9,6 +9,8 @@ type UserContextType = {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, username: string) => Promise<{ error: any, requiresEmailConfirmation: boolean }>;
   signOut: () => Promise<void>;
+  resendConfirmationEmail: (email: string) => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -91,7 +93,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
-        toast.error(error.message);
+        // Check specifically for the email not confirmed error
+        if (error.message.includes('Email not confirmed')) {
+          toast.error('Email onaylanmamış. Lütfen onay e-postanızı kontrol edin veya yeni bir onay e-postası isteyin.');
+        } else {
+          toast.error(error.message);
+        }
         return { error };
       }
       
@@ -156,6 +163,55 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // New function to resend confirmation email
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+
+      if (error) {
+        console.error('Error resending confirmation email:', error);
+        if (error.message.includes('For security purposes')) {
+          toast.error('Güvenlik nedeniyle, kısa bir süre bekledikten sonra tekrar deneyin.');
+        } else {
+          toast.error(error.message);
+        }
+        return { error };
+      }
+
+      toast.success('Onay e-postası tekrar gönderildi. Lütfen e-posta kutunuzu kontrol edin.');
+      return { error: null };
+    } catch (error: any) {
+      console.error('Error resending confirmation email:', error);
+      toast.error('Onay e-postası gönderilemedi.');
+      return { error };
+    }
+  };
+
+  // New function to reset password
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/auth?mode=reset',
+      });
+
+      if (error) {
+        console.error('Error sending reset password email:', error);
+        toast.error(error.message);
+        return { error };
+      }
+
+      toast.success('Şifre sıfırlama e-postası gönderildi. Lütfen e-posta kutunuzu kontrol edin.');
+      return { error: null };
+    } catch (error: any) {
+      console.error('Error sending reset password email:', error);
+      toast.error('Şifre sıfırlama e-postası gönderilemedi.');
+      return { error };
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -163,6 +219,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         signIn,
         signUp,
         signOut,
+        resendConfirmationEmail,
+        resetPassword,
       }}
     >
       {children}

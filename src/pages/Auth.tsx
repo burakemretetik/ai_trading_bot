@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '@/context/UserContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { MailIcon } from 'lucide-react';
+import { MailIcon, AlertCircleIcon, ArrowLeftIcon } from 'lucide-react';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -16,16 +16,24 @@ export default function Auth() {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
-  const { session, signIn, signUp } = useUser();
+  const { session, signIn, signUp, resendConfirmationEmail, resetPassword } = useUser();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     // Redirect to home if already logged in
     if (session.user && !session.isLoading) {
       navigate('/');
     }
-  }, [session, navigate]);
+
+    // Check if we're in reset password mode from URL
+    const mode = searchParams.get('mode');
+    if (mode === 'reset') {
+      setShowResetPassword(true);
+    }
+  }, [session, navigate, searchParams]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,9 +65,38 @@ export default function Auth() {
     }
   };
 
+  const handleResendConfirmation = async () => {
+    if (!email) return;
+    
+    setLoading(true);
+    try {
+      await resendConfirmationEmail(email);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setLoading(true);
+    try {
+      await resetPassword(email);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     setShowEmailConfirmation(false);
+    setShowResetPassword(false);
+  };
+
+  const goBack = () => {
+    setShowEmailConfirmation(false);
+    setShowResetPassword(false);
   };
 
   if (session.isLoading) {
@@ -70,6 +107,62 @@ export default function Auth() {
     );
   }
 
+  if (showResetPassword) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background p-4">
+        <div className="w-full max-w-md">
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-bold">Haber Sinyalleri</h1>
+            <p className="text-muted-foreground mt-2">Şifre Sıfırlama</p>
+          </div>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Şifre Sıfırlama</CardTitle>
+              <CardDescription>
+                E-posta adresinize bir şifre sıfırlama bağlantısı göndereceğiz.
+              </CardDescription>
+            </CardHeader>
+            <form onSubmit={handleResetPassword}>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <Input
+                    id="reset-email"
+                    type="email"
+                    placeholder="mail@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col gap-4">
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={loading}
+                >
+                  {loading ? "İşleniyor..." : "Şifre Sıfırlama Bağlantısı Gönder"}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={goBack}
+                  disabled={loading}
+                >
+                  <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                  Giriş Sayfasına Dön
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md">
@@ -89,12 +182,30 @@ export default function Auth() {
                 Hesabınız oluşturuldu. Lütfen email adresinizi kontrol edin ve hesabınızı onaylayın.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <Alert>
                 <AlertDescription>
                   <span className="font-medium">{email}</span> adresine bir onay maili gönderdik. Lütfen mailinizi kontrol edin ve hesabınızı onaylayın.
                 </AlertDescription>
               </Alert>
+              
+              <div className="rounded-lg border p-4">
+                <h3 className="font-medium flex items-center gap-2">
+                  <AlertCircleIcon className="h-4 w-4 text-amber-500" />
+                  Onay e-postası almadınız mı?
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1 mb-3">
+                  Spam klasörünü kontrol edin veya yeni bir onay e-postası isteyin.
+                </p>
+                <Button 
+                  variant="secondary" 
+                  className="w-full" 
+                  onClick={handleResendConfirmation}
+                  disabled={loading}
+                >
+                  {loading ? "Gönderiliyor..." : "Yeni Onay E-postası Gönder"}
+                </Button>
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
               <Button 
@@ -151,6 +262,14 @@ export default function Auth() {
                         required
                       />
                     </div>
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      className="p-0 h-auto"
+                      onClick={() => setShowResetPassword(true)}
+                    >
+                      Şifrenizi mi unuttunuz?
+                    </Button>
                   </CardContent>
                   <CardFooter>
                     <Button 
