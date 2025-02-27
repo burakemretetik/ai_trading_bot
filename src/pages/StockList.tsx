@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, X, ArrowLeft } from 'lucide-react';
+import { Check, X, ArrowLeft, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Stock } from '@/utils/types';
 import { mockStocks, createMockStocksFromCSV } from '@/utils/mockData';
@@ -41,10 +41,10 @@ const StockList = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleToggleTracking = (stock: Stock) => {
+  const handleToggleTracking = (id: string) => {
     setStocks(prev => 
       prev.map(s => {
-        if (s.id === stock.id) {
+        if (s.id === id) {
           const newTrackedState = !s.tracked;
           
           // Show toast notification
@@ -110,16 +110,12 @@ const StockList = () => {
                   </div>
                   <div className="col-span-2 flex justify-center">
                     <Button 
-                      variant={stock.tracked ? "default" : "outline"} 
-                      size="sm"
-                      className={`w-7 h-7 p-0 rounded-full ${stock.tracked ? 'bg-primary hover:bg-primary/90' : ''}`}
-                      onClick={() => handleToggleTracking(stock)}
+                      variant="ghost" 
+                      size="icon"
+                      className="rounded-full"
+                      onClick={() => handleToggleTracking(stock.id)}
                     >
-                      {stock.tracked ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <X className="h-4 w-4" />
-                      )}
+                      <Star className={`h-5 w-5 ${stock.tracked ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
                       <span className="sr-only">
                         {stock.tracked ? 'Takipten çıkar' : 'Takip et'}
                       </span>
