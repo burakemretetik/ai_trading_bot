@@ -105,7 +105,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      // First sign up the user
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -115,12 +116,25 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
 
-      if (error) {
-        toast.error(error.message);
-        return { error };
+      if (signUpError) {
+        toast.error(signUpError.message);
+        return { error: signUpError };
       }
 
-      toast.success('Kayıt başarılı, giriş yapılıyor...');
+      // If signup successful, immediately sign in
+      if (data.user) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) {
+          toast.error('Kayıt başarılı fakat giriş yapılamadı');
+          return { error: signInError };
+        }
+      }
+
+      toast.success('Kayıt başarılı, giriş yapıldı');
       return { error: null };
     } catch (error: any) {
       toast.error('Kayıt yapılamadı');
