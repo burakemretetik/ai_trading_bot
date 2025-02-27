@@ -1,12 +1,27 @@
 
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
-import { NewsItem as NewsItemType } from '@/utils/types';
+import { NewsItem as NewsItemType, SignalStrength } from '@/utils/types';
 import { formatDistanceToNow } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface NewsItemProps {
   news: NewsItemType;
 }
+
+const getSignalColor = (signal?: SignalStrength): string => {
+  switch (signal) {
+    case 'strong':
+      return 'bg-green-100 text-green-800';
+    case 'medium':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'weak':
+      return 'bg-orange-100 text-orange-800';
+    case 'neutral':
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
 
 const NewsItem: React.FC<NewsItemProps> = ({ news }) => {
   const formattedDate = formatDistanceToNow(new Date(news.publishedAt), { addSuffix: true });
@@ -14,9 +29,18 @@ const NewsItem: React.FC<NewsItemProps> = ({ news }) => {
   return (
     <div className="p-4 border rounded-lg bg-card card-hover mb-4 animate-slide-up">
       <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <span className="text-xs font-medium bg-secondary px-2 py-1 rounded-full">{news.source}</span>
-          <span className="text-xs text-muted-foreground ml-2">{formattedDate}</span>
+          <span className="text-xs text-muted-foreground">{formattedDate}</span>
+          
+          {news.signalStrength && (
+            <span className={cn(
+              "text-xs font-medium px-2 py-1 rounded-full ml-2",
+              getSignalColor(news.signalStrength)
+            )}>
+              {news.signalStrength.charAt(0).toUpperCase() + news.signalStrength.slice(1)}
+            </span>
+          )}
         </div>
       </div>
       

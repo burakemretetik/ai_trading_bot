@@ -6,6 +6,7 @@ export interface NewsItem {
   url: string;
   publishedAt: string;
   summary: string;
+  signalStrength?: SignalStrength;
 }
 
 export interface Stock {
@@ -24,3 +25,11 @@ export interface EmailSettings {
 }
 
 export type SignalStrength = "strong" | "medium" | "weak" | "neutral";
+
+export interface GoogleSearchResult {
+  title: string;
+  link: string;
+  snippet: string;
+  source: string;
+  publishedTime?: string;
+}
