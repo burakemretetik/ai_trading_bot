@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { mockStocks } from '@/utils/mockData';
+import { createMockStocksFromCSV } from '@/utils/mockData';
 import { Stock } from '@/utils/types';
 
 interface SearchBarProps {
@@ -15,17 +15,32 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Stock[]>([]);
+  const [allStocks, setAllStocks] = useState<Stock[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
+    // Load all stocks when the search bar opens
+    if (isOpen) {
+      const loadAllStocks = async () => {
+        try {
+          const stocks = await createMockStocksFromCSV();
+          setAllStocks(stocks);
+        } catch (error) {
+          console.error('Error loading stocks for search:', error);
+        }
+      };
+      
+      loadAllStocks();
+      
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
   }, [isOpen]);
 
   useEffect(() => {
-    if (query.length > 0) {
-      const filtered = mockStocks.filter(
+    if (query.length > 0 && allStocks.length > 0) {
+      const filtered = allStocks.filter(
         stock => 
           stock.symbol.toLowerCase().includes(query.toLowerCase()) ||
           stock.name.toLowerCase().includes(query.toLowerCase())
@@ -34,7 +49,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
     } else {
       setResults([]);
     }
-  }, [query]);
+  }, [query, allStocks]);
 
   const handleAddStock = (stock: Stock) => {
     onAddStock(stock);
@@ -52,7 +67,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
           <Input
             ref={inputRef}
             type="text"
-            placeholder="Search for companies or symbols..."
+            placeholder="Şirket adı veya sembol ara..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -82,7 +97,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
                       size="sm" 
                       className={stock.tracked ? "text-muted-foreground" : ""}
                     >
-                      {stock.tracked ? 'Tracked' : 'Add'}
+                      {stock.tracked ? 'Takipte' : 'Ekle'}
                     </Button>
                   </div>
                 </li>
@@ -90,11 +105,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, onAddStock }) =>
             </ul>
           ) : query.length > 0 ? (
             <div className="py-8 text-center">
-              <p className="text-muted-foreground">No results found for "{query}"</p>
+              <p className="text-muted-foreground">"{query}" için sonuç bulunamadı</p>
             </div>
           ) : (
             <div className="py-8 text-center">
-              <p className="text-muted-foreground">Start typing to search for stocks</p>
+              <p className="text-muted-foreground">Aramak için yazmaya başlayın</p>
             </div>
           )}
         </div>

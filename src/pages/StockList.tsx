@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Check, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Stock } from '@/utils/types';
-import { mockStocks } from '@/utils/mockData';
+import { mockStocks, createMockStocksFromCSV } from '@/utils/mockData';
 import { toast } from 'sonner';
 
 const StockList = () => {
@@ -12,10 +12,30 @@ const StockList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadStocks = async () => {
+      setLoading(true);
+      try {
+        // Try to load stocks from CSV
+        const csvStocks = await createMockStocksFromCSV();
+        
+        // Use CSV data if available, otherwise fall back to mock data
+        if (csvStocks && csvStocks.length > 0) {
+          setStocks(csvStocks);
+        } else {
+          setStocks(mockStocks);
+        }
+      } catch (error) {
+        console.error('Error loading stocks:', error);
+        setStocks(mockStocks);
+        toast.error('Hisse verileri yüklenirken bir hata oluştu');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     // Simulate API loading
     const timer = setTimeout(() => {
-      setStocks(mockStocks);
-      setLoading(false);
+      loadStocks();
     }, 800);
     
     return () => clearTimeout(timer);
@@ -59,7 +79,7 @@ const StockList = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {loading ? (
           <div className="animate-pulse space-y-4">
-            {[...Array(5)].map((_, i) => (
+            {[...Array(10)].map((_, i) => (
               <div key={i} className="h-20 bg-muted rounded-lg"></div>
             ))}
           </div>

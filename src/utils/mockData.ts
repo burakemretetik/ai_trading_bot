@@ -1,7 +1,91 @@
 
 import { Stock, EmailSettings } from './types';
 
-// Adding Turkish stocks from Borsa İstanbul
+// Base mock news data that we'll reuse
+const mockNewsItems = [
+  {
+    id: '101',
+    title: "Yeni Stratejik Yatırım Duyuruldu",
+    source: 'BloombergHT',
+    url: '#',
+    publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    summary: "Şirket yönetimi yeni stratejik yatırımı düzenlenen basın toplantısında duyurdu. Bu yatırım, şirketin büyüme hedeflerine önemli katkı sağlayacak.",
+    signalStrength: 'strong'
+  },
+  {
+    id: '201',
+    title: "Üçüncü Çeyrek Finansal Sonuçlar Beklentilerin Üzerinde",
+    source: 'Ekonomist',
+    url: '#',
+    publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    summary: 'Şirketin üçüncü çeyrek finansal sonuçları analist beklentilerinin üzerinde gerçekleşti. Hisse senedi değer kazanıyor.',
+    signalStrength: 'medium'
+  },
+  {
+    id: '301',
+    title: 'Yeni Teknoloji Yatırımı Açıklandı',
+    source: 'Habertürk',
+    url: '#',
+    publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    summary: "Şirket, yeni teknoloji yatırımlarını duyurdu. Bu yatırım, şirketin rekabet gücünü artıracak ve operasyonel verimliliğe katkı sağlayacak.",
+    signalStrength: 'strong'
+  },
+  {
+    id: '401',
+    title: 'Yönetim Kurulunda Değişiklik',
+    source: 'Dünya',
+    url: '#',
+    publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+    summary: 'Şirketin yönetim kurulunda önemli değişiklikler yaşandı. Yeni atamalar şirketin stratejik hedeflerine ulaşmasına katkı sağlayacak.',
+    signalStrength: 'neutral'
+  },
+  {
+    id: '501',
+    title: 'Üretim Kapasitesi Artırılıyor',
+    source: 'Anadolu Ajansı',
+    url: '#',
+    publishedAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+    summary: 'Şirket, üretim kapasitesini artırmak için yeni yatırım projesini hayata geçireceğini duyurdu.',
+    signalStrength: 'medium'
+  }
+];
+
+// Function to create mock stocks from CSV data
+export const createMockStocksFromCSV = async () => {
+  try {
+    // Dynamically import the parseCSV function to avoid circular dependencies
+    const { parseCSV } = await import('./csvParser');
+    const csvData = await parseCSV('/bist_hisseleri.csv');
+    
+    // Create mock stocks from CSV data (taking first 50 for better performance)
+    const stocks: Stock[] = csvData.slice(0, 50).map((item, index) => {
+      // Assign a random tracked status (with some being tracked by default)
+      const tracked = index < 5 || Math.random() > 0.8;
+      
+      // Assign random news items to some stocks
+      const hasNews = Math.random() > 0.6;
+      const news = hasNews 
+        ? [mockNewsItems[Math.floor(Math.random() * mockNewsItems.length)]]
+        : [];
+      
+      return {
+        id: (index + 1).toString(),
+        symbol: item.symbol,
+        name: item.name,
+        tracked,
+        news
+      };
+    });
+    
+    return stocks;
+  } catch (error) {
+    console.error('Error creating mock stocks:', error);
+    // Return the original mock data as fallback
+    return mockStocks;
+  }
+};
+
+// Initial mock data (will be replaced with CSV data when loaded)
 export const mockStocks: Stock[] = [
   {
     id: '1',
