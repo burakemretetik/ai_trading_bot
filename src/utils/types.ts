@@ -24,3 +24,18 @@ export interface EmailSettings {
 }
 
 export type SignalStrength = "strong" | "medium" | "weak" | "neutral";
+
+export interface GoogleSearchResult {
+  title: string;
+  link: string;
+  snippet: string;
+  source: string;
+  publishedTime?: string;
+}
+
+export interface GoogleSearchResponse {
+  items: GoogleSearchResult[];
+  searchInformation: {
+    totalResults: string;
+  };
+}
