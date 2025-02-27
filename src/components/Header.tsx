@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Bell, Settings, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BellRing, Search, List, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface HeaderProps {
@@ -10,31 +11,39 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onSearchClick, onSettingsClick }) => {
   return (
-    <header className="sticky top-0 z-10 w-full glass-effect border-b border-gray-200 px-4 py-3 animate-fade-in">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-semibold text-sm">S</span>
-          </div>
-          <h1 className="text-xl font-semibold tracking-tight">Stock News Signal</h1>
+    <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <BellRing className="h-5 w-5 text-primary" />
+          <h1 className="text-xl font-semibold">Hisse Haberleri</h1>
         </div>
-        
-        <div className="flex items-center space-x-3">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="rounded-full transition-all duration-300 hover:bg-secondary"
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onSearchClick}
+            aria-label="Hisse Ara"
           >
-            <Search className="h-4 w-4 mr-2" />
-            <span>Search</span>
+            <Search className="h-5 w-5" />
           </Button>
           
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="rounded-full transition-all duration-300"
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            aria-label="Hisse Listesi"
+          >
+            <Link to="/stocks">
+              <List className="h-5 w-5" />
+            </Link>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onSettingsClick}
+            aria-label="Ayarlar"
           >
             <Settings className="h-5 w-5" />
           </Button>

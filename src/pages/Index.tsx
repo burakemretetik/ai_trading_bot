@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import SearchBar from '@/components/SearchBar';
 import StockCard from '@/components/StockCard';
@@ -7,6 +8,8 @@ import EmptyState from '@/components/EmptyState';
 import EmailSetup from '@/components/EmailSetup';
 import { Stock, EmailSettings } from '@/utils/types';
 import { mockStocks, mockEmailSettings } from '@/utils/mockData';
+import { Button } from '@/components/ui/button';
+import { List } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Index = () => {
@@ -36,9 +39,9 @@ const Index = () => {
           
           // Show toast notification
           if (newTrackedState) {
-            toast.success(`${stock.symbol} added to your watchlist`);
+            toast.success(`${stock.symbol} takibinize eklendi`);
           } else {
-            toast(`${stock.symbol} removed from your watchlist`);
+            toast(`${stock.symbol} takibinizden çıkarıldı`);
           }
           
           return { ...stock, tracked: newTrackedState };
@@ -57,12 +60,15 @@ const Index = () => {
     } else if (!existingStock) {
       // Add new stock with tracked = true
       setStocks(prev => [...prev, { ...stock, tracked: true }]);
-      toast.success(`${stock.symbol} added to your watchlist`);
+      toast.success(`${stock.symbol} takibinize eklendi`);
     }
   };
 
   const handleSaveEmailSettings = (settings: EmailSettings) => {
     setEmailSettings(settings);
+    if (settings.enabled) {
+      toast.success('E-posta bildirimleri etkinleştirildi');
+    }
   };
 
   return (
@@ -80,7 +86,15 @@ const Index = () => {
           </div>
         ) : trackedStocks.length > 0 ? (
           <>
-            <h2 className="text-2xl font-semibold mb-6 animate-fade-in">Your Tracked Stocks</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold animate-fade-in">Takip Ettiğiniz Hisseler</h2>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/stocks" className="flex items-center gap-2">
+                  <List className="h-4 w-4" />
+                  <span>Tüm Hisseler</span>
+                </Link>
+              </Button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {trackedStocks.map(stock => (
                 <StockCard 
