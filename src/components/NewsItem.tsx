@@ -11,16 +11,11 @@ interface NewsItemProps {
 const NewsItem: React.FC<NewsItemProps> = ({ news }) => {
   const formattedDate = formatDistanceToNow(new Date(news.publishedAt), { addSuffix: true });
   
-  // Check if this is a search result (they have a different visual treatment)
-  const isSearchResult = news.id.startsWith('search-');
-  
   return (
-    <div className={`p-4 border rounded-lg bg-card ${isSearchResult ? 'border-primary/20' : ''} card-hover mb-4 animate-slide-up`}>
+    <div className="p-4 border rounded-lg bg-card card-hover mb-4 animate-slide-up">
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center">
-          <span className={`text-xs font-medium ${isSearchResult ? 'bg-primary/10 text-primary' : 'bg-secondary'} px-2 py-1 rounded-full`}>
-            {news.source}
-          </span>
+          <span className="text-xs font-medium bg-secondary px-2 py-1 rounded-full">{news.source}</span>
           <span className="text-xs text-muted-foreground ml-2">{formattedDate}</span>
         </div>
       </div>

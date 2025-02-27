@@ -1,11 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Star } from 'lucide-react';
-import { Stock, GoogleSearchResult, NewsItem } from '@/utils/types';
+import { Stock } from '@/utils/types';
 import { Button } from '@/components/ui/button';
 import NewsItem from './NewsItem';
-import StockNewsSearch from './StockNewsSearch';
-import { formatDistanceToNow } from 'date-fns';
 
 interface StockCardProps {
   stock: Stock;
@@ -13,30 +11,6 @@ interface StockCardProps {
 }
 
 const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
-  const [searchResults, setSearchResults] = useState<GoogleSearchResult[]>([]);
-  
-  const handleSearchResults = (results: GoogleSearchResult[]) => {
-    setSearchResults(results);
-  };
-  
-  // Convert Google search results to NewsItem format
-  const searchResultsToNewsItems = (results: GoogleSearchResult[]): NewsItem[] => {
-    return results.map((result, index) => ({
-      id: `search-${index}-${Date.now()}`,
-      title: result.title,
-      source: result.source,
-      url: result.link,
-      publishedAt: result.publishedTime || new Date().toISOString(),
-      summary: result.snippet
-    }));
-  };
-  
-  // Combined news: search results + stock news
-  const combinedNews = [
-    ...searchResultsToNewsItems(searchResults),
-    ...stock.news
-  ];
-
   return (
     <div className="border rounded-lg overflow-hidden bg-card animate-fade-in">
       <div className="p-4 border-b">
@@ -62,15 +36,9 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
       </div>
       
       <div className="p-4">
-        <StockNewsSearch
-          stockSymbol={stock.symbol}
-          stockName={stock.name}
-          onResultsFound={handleSearchResults}
-        />
-        
         <h4 className="text-sm font-medium mb-3">Latest News</h4>
-        {combinedNews.length > 0 ? (
-          combinedNews.map(item => (
+        {stock.news.length > 0 ? (
+          stock.news.map(item => (
             <NewsItem key={item.id} news={item} />
           ))
         ) : (
