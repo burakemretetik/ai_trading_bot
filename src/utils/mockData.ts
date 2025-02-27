@@ -32,7 +32,7 @@ export const mockStocks: Stock[] = [
     news: [
       {
         id: '201',
-        title: 'Garanti BBVA'nın Dijital Bankacılık Kullanıcı Sayısı 12 Milyonu Aştı',
+        title: "Garanti BBVA'nın Dijital Bankacılık Kullanıcı Sayısı 12 Milyonu Aştı",
         source: 'Ekonomist',
         url: '#',
         publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
@@ -112,7 +112,7 @@ export const mockStocks: Stock[] = [
         source: 'Finans Gündem',
         url: '#',
         publishedAt: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
-        summary: 'İş Bankası, KOBİ'lere yönelik yeni kredi paketini duyurdu. Paket, düşük faizli ve uzun vadeli kredi imkanları sunuyor.',
+        summary: "İş Bankası, KOBİ'lere yönelik yeni kredi paketini duyurdu. Paket, düşük faizli ve uzun vadeli kredi imkanları sunuyor.",
         signalStrength: 'medium'
       }
     ]
