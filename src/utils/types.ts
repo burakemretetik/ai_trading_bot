@@ -22,3 +22,5 @@ export interface EmailSettings {
   frequency: "instant" | "daily" | "weekly";
   signalThreshold: string;
 }
+
+export type SignalStrength = "strong" | "medium" | "weak" | "neutral";
