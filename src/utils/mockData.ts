@@ -50,7 +50,8 @@ export const createMockStocksFromCSV = async () => {
   try {
     // Dynamically import the parseCSV function to avoid circular dependencies
     const { parseCSV } = await import('./csvParser');
-    const csvData = await parseCSV('/bist_hisseleri.csv');
+    // Update the file path to the correct location
+    const csvData = await parseCSV('/bist_100_hisseleri.csv');
     
     // If no CSV data is found, immediately return empty array to use fallback
     if (!csvData || csvData.length === 0) {

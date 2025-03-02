@@ -4,7 +4,14 @@
  */
 export const parseCSV = async (filePath: string) => {
   try {
+    console.log(`Attempting to fetch CSV from: ${filePath}`);
     const response = await fetch(filePath);
+    
+    if (!response.ok) {
+      console.error(`Failed to fetch CSV: ${response.status} ${response.statusText}`);
+      return [];
+    }
+    
     const csvText = await response.text();
     
     // Split the CSV text into lines
