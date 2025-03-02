@@ -11,6 +11,7 @@ import StockCard from '@/components/StockCard';
 import SearchBar from '@/components/SearchBar';
 import { toast } from 'sonner';
 import { getTrackedStocks, trackStock, untrackStock } from '@/services/stockService';
+import { checkForNewsAndNotifyUser } from '@/services/emailService';
 
 export default function Index() {
   const [stocks, setStocks] = useState<Stock[]>([]);
@@ -38,6 +39,12 @@ export default function Index() {
           }));
           
           setStocks(updatedStocks);
+          
+          // Check for news for tracked stocks
+          const trackedStocksData = updatedStocks.filter(stock => stock.tracked);
+          if (trackedStocksData.length > 0) {
+            checkForNewsAndNotifyUser(trackedStocksData);
+          }
         } else {
           // For mock data, also check localStorage
           const updatedMockStocks = mockStocks.map(stock => ({
@@ -46,6 +53,12 @@ export default function Index() {
           }));
           
           setStocks(updatedMockStocks);
+          
+          // Check for news for tracked stocks
+          const trackedStocksData = updatedMockStocks.filter(stock => stock.tracked);
+          if (trackedStocksData.length > 0) {
+            checkForNewsAndNotifyUser(trackedStocksData);
+          }
         }
       } catch (error) {
         console.error('Error loading stocks:', error);

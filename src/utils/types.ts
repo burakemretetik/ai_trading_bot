@@ -26,3 +26,11 @@ export interface EmailSettings {
 }
 
 export type SignalStrength = "strong" | "medium" | "weak" | "neutral";
+
+export interface StockNewsMapping {
+  timestamp: string;
+  updated: boolean;
+  stock_news: {
+    [stockName: string]: string[];
+  };
+}
