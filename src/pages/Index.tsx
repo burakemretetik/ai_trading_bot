@@ -6,7 +6,6 @@ import TrackedStocksList from '@/components/TrackedStocksList';
 import SearchBar from '@/components/SearchBar';
 import WhatsAppSettings from '@/components/WhatsAppSettings';
 import { useStocks } from '@/hooks/useStocks';
-import { toast } from 'sonner';
 
 export default function Index() {
   const { stocks, loading, handleToggleTracking, handleAddStock } = useStocks();
