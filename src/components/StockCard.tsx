@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Star, RefreshCw, Globe } from 'lucide-react';
 import { Stock, NewsItem } from '@/utils/types';
@@ -6,11 +7,13 @@ import NewsItemComponent from './NewsItem';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { getNewsUrlsForStock } from '@/services/newsService';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
+
 interface StockCardProps {
   stock: Stock;
   onToggleTracking: (id: string) => void;
 }
+
 const StockCard: React.FC<StockCardProps> = ({
   stock,
   onToggleTracking
@@ -19,6 +22,7 @@ const StockCard: React.FC<StockCardProps> = ({
   const [news, setNews] = useState<NewsItem[]>(stock.news);
   const [lastNewsUpdate, setLastNewsUpdate] = useState<string | null>(null);
   const [newsUrls, setNewsUrls] = useState<string[]>([]);
+
   useEffect(() => {
     // Get news from database
     fetchNewsFromDB();
@@ -47,6 +51,7 @@ const StockCard: React.FC<StockCardProps> = ({
 
     return () => clearInterval(intervalId);
   }, [stock.id, lastNewsUpdate]);
+
   const fetchNewsUrls = async () => {
     try {
       const urls = await getNewsUrlsForStock(stock.symbol);
@@ -57,6 +62,7 @@ const StockCard: React.FC<StockCardProps> = ({
       console.error('Error fetching news URLs:', error);
     }
   };
+
   const fetchNewsFromDB = async () => {
     try {
       setLoading(true);
@@ -108,6 +114,7 @@ const StockCard: React.FC<StockCardProps> = ({
       setLoading(false);
     }
   };
+
   const handleRefreshNews = async () => {
     setLoading(true);
     try {
@@ -121,8 +128,10 @@ const StockCard: React.FC<StockCardProps> = ({
       setLoading(false);
     }
   };
-  return <div className="border rounded-lg overflow-hidden bg-card animate-fade-in">
-      <div className="p-4 border-b">
+
+  return (
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="flex flex-col">
@@ -133,17 +142,63 @@ const StockCard: React.FC<StockCardProps> = ({
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            
-            
-            <Button variant="ghost" size="icon" className="rounded-full" onClick={() => onToggleTracking(stock.id)}>
-              <Star className={`h-5 w-5 ${stock.tracked ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
-            </Button>
-          </div>
+          <Button variant="ghost" size="icon" className="rounded-full" onClick={() => onToggleTracking(stock.id)}>
+            <Star className={`h-5 w-5 ${stock.tracked ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
+          </Button>
         </div>
-      </div>
+      </CardHeader>
       
+      <CardContent className="pt-2 flex-grow">
+        {news.length > 0 ? (
+          <div className="space-y-3 mt-2">
+            {news.slice(0, 3).map(item => (
+              <NewsItemComponent key={item.id} news={item} />
+            ))}
+          </div>
+        ) : newsUrls.length > 0 ? (
+          <div className="space-y-2">
+            {newsUrls.slice(0, 3).map((url, index) => (
+              <a 
+                key={index} 
+                href={url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block p-2 border rounded hover:bg-muted transition-colors flex items-center"
+              >
+                <Globe className="h-4 w-4 mr-2" />
+                <span className="text-sm truncate">{new URL(url).hostname.replace('www.', '')}</span>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-4 text-muted-foreground text-sm">
+            No news available
+          </div>
+        )}
+      </CardContent>
       
-    </div>;
+      {(news.length > 0 || newsUrls.length > 0) && (
+        <CardFooter className="pt-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefreshNews} 
+            disabled={loading}
+            className="w-full"
+          >
+            {loading ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                <span>Refresh News</span>
+              </>
+            )}
+          </Button>
+        </CardFooter>
+      )}
+    </Card>
+  );
 };
+
 export default StockCard;
