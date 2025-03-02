@@ -22,15 +22,7 @@ export interface EmailSettings {
   enabled: boolean;
   address: string;
   frequency: "instant" | "daily" | "weekly";
-  signalThreshold: SignalStrength;
+  signalThreshold: string;
 }
 
 export type SignalStrength = "strong" | "medium" | "weak" | "neutral";
-
-export interface StockNewsMapping {
-  timestamp: string;
-  updated: boolean;
-  stock_news: {
-    [symbol: string]: string[];
-  };
-}
