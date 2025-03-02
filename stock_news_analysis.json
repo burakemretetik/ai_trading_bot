@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-03-02T15:20:31.002381",
+  "timestamp": "2025-03-02T15:50:26.721263",
   "total_batches": 13,
   "total_direct_news": 0,
   "direct_news": [],
@@ -50,7 +50,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -99,7 +100,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -148,7 +150,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -197,7 +200,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -246,7 +250,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -295,7 +300,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -344,7 +350,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -393,7 +400,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -442,7 +450,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -491,7 +500,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -540,7 +550,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -589,7 +600,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     },
     {
@@ -610,7 +622,8 @@
       ],
       "result": {
         "direct_news": [],
-        "no_direct_news_found": true
+        "no_direct_news_found": true,
+        "error": "Connection error."
       }
     }
   ]
