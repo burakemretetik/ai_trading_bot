@@ -74,15 +74,15 @@ export async function checkForNewsAndNotifyUser(): Promise<boolean> {
 }
 
 // Helper to get news URLs for a specific stock
-export function getNewsUrlsForStock(symbol: string): string[] {
-  // Fetch the latest mapping dynamically to ensure we have the most recent data
-  return fetch('/stock_news_mapping.json')
-    .then(response => response.json())
-    .then(mapping => mapping.stock_news[symbol] || [])
-    .catch(error => {
-      console.error('Error fetching news URLs:', error);
-      return [];
-    });
+export async function getNewsUrlsForStock(symbol: string): Promise<string[]> {
+  try {
+    const response = await fetch('/stock_news_mapping.json');
+    const mapping = await response.json();
+    return mapping.stock_news[symbol] || [];
+  } catch (error) {
+    console.error('Error fetching news URLs:', error);
+    return [];
+  }
 }
 
 // Helper to format news for WhatsApp
