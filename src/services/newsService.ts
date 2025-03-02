@@ -1,4 +1,3 @@
-
 import { StockNewsMapping } from '@/utils/types';
 import stockNewsMapping from '@/utils/stock_news_mapping.json';
 import { supabase } from '@/integrations/supabase/client';
@@ -74,14 +73,27 @@ export async function checkForNewsAndNotifyUser(): Promise<boolean> {
 }
 
 // Helper to get news URLs for a specific stock
-export async function getNewsUrlsForStock(symbol: string): Promise<string[]> {
+export async function getNewsUrlsForStock(stockSymbol: string): Promise<string[] | null> {
   try {
+    // Fetch the mapping file
     const response = await fetch('/stock_news_mapping.json');
-    const mapping = await response.json();
-    return mapping.stock_news[symbol] || [];
+    const data = await response.json();
+    
+    // Check if the mapping file has been updated
+    if (!data.updated) {
+      console.log('Stock news mapping not yet updated');
+      return null;
+    }
+    
+    // Return the news URLs for the stock symbol if they exist
+    if (data.stock_news && data.stock_news[stockSymbol]) {
+      return data.stock_news[stockSymbol];
+    }
+    
+    return null;
   } catch (error) {
-    console.error('Error fetching news URLs:', error);
-    return [];
+    console.error('Error fetching news URLs for stock:', error);
+    return null;
   }
 }
 

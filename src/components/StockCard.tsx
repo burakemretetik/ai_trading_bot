@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Star, RefreshCw } from 'lucide-react';
+import { Star, RefreshCw, Globe } from 'lucide-react';
 import { Stock, NewsItem } from '@/utils/types';
 import { Button } from '@/components/ui/button';
 import NewsItemComponent from './NewsItem';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { getNewsUrlsForStock } from '@/services/newsService';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface StockCardProps {
   stock: Stock;
@@ -17,10 +18,14 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
   const [loading, setLoading] = useState(false);
   const [news, setNews] = useState<NewsItem[]>(stock.news);
   const [lastNewsUpdate, setLastNewsUpdate] = useState<string | null>(null);
+  const [newsUrls, setNewsUrls] = useState<string[]>([]);
   
   useEffect(() => {
     // Get news from database
     fetchNewsFromDB();
+    
+    // Fetch news URLs from stock_news_mapping.json
+    fetchNewsUrls();
     
     // Set up interval to check for news updates every minute
     const checkForUpdates = async () => {
@@ -33,6 +38,7 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
           console.log(`News archive updated for ${stock.symbol}, refreshing news`);
           setLastNewsUpdate(data.timestamp);
           fetchNewsFromDB();
+          fetchNewsUrls();
         }
       } catch (error) {
         console.error('Error checking for news updates:', error);
@@ -43,6 +49,17 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
     
     return () => clearInterval(intervalId);
   }, [stock.id, lastNewsUpdate]);
+  
+  const fetchNewsUrls = async () => {
+    try {
+      const urls = await getNewsUrlsForStock(stock.symbol);
+      if (urls && urls.length > 0) {
+        setNewsUrls(urls);
+      }
+    } catch (error) {
+      console.error('Error fetching news URLs:', error);
+    }
+  };
   
   const fetchNewsFromDB = async () => {
     try {
@@ -104,6 +121,7 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
     setLoading(true);
     try {
       await fetchNewsFromDB();
+      await fetchNewsUrls();
       toast.success(`News refreshed for ${stock.symbol}`);
     } catch (error) {
       console.error('Error refreshing news:', error);
@@ -158,6 +176,32 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
           ))
         ) : (
           <p className="text-sm text-muted-foreground py-4 text-center">No recent news available</p>
+        )}
+
+        {/* News URLs from news_archive.json */}
+        {newsUrls.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium mb-2">News Archive</h4>
+            <Card>
+              <CardContent className="p-3">
+                <ul className="space-y-2">
+                  {newsUrls.map((url, index) => (
+                    <li key={`archive-${index}`} className="text-sm flex items-center">
+                      <Globe className="h-3 w-3 mr-2 text-muted-foreground" />
+                      <a 
+                        href={url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline truncate"
+                      >
+                        {new URL(url).hostname.replace('www.', '')}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </div>

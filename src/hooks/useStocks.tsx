@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 export function useStocks() {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState(true);
+  const [newsArchiveTimestamp, setNewsArchiveTimestamp] = useState<string | null>(null);
   
   useEffect(() => {
     const loadStocks = async () => {
@@ -46,6 +47,15 @@ export function useStocks() {
         if (hasNews) {
           console.log('WhatsApp notifications sent to user for news updates');
         }
+        
+        // Get news archive timestamp
+        try {
+          const response = await fetch('/news_archive.json');
+          const data = await response.json();
+          setNewsArchiveTimestamp(data.timestamp);
+        } catch (error) {
+          console.error('Error fetching news archive timestamp:', error);
+        }
       } catch (error) {
         console.error('Error loading stocks:', error);
         
@@ -65,6 +75,24 @@ export function useStocks() {
     };
     
     loadStocks();
+    
+    // Set up an interval to check for news archive updates
+    const checkNewsArchiveInterval = setInterval(async () => {
+      try {
+        const response = await fetch('/news_archive.json');
+        const data = await response.json();
+        
+        if (newsArchiveTimestamp !== data.timestamp) {
+          console.log('News archive updated, refreshing stocks');
+          setNewsArchiveTimestamp(data.timestamp);
+          loadStocks();
+        }
+      } catch (error) {
+        console.error('Error checking news archive updates:', error);
+      }
+    }, 5 * 60 * 1000); // Check every 5 minutes
+    
+    return () => clearInterval(checkNewsArchiveInterval);
   }, []);
 
   const handleToggleTracking = async (id: string) => {
