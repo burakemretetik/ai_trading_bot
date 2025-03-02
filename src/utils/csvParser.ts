@@ -20,13 +20,16 @@ export const parseCSV = async (filePath: string) => {
     // Remove the header line
     const dataLines = lines.slice(1);
     
-    // Parse each line into an object
-    return dataLines
+    // Filter out empty lines and parse each line into an object
+    const parsedData = dataLines
       .filter(line => line.trim() !== '') // Skip empty lines
       .map(line => {
         const [symbol, name, city] = line.split(',');
         return { symbol, name, city };
       });
+    
+    console.log(`Successfully parsed ${parsedData.length} stocks from CSV`);
+    return parsedData;
   } catch (error) {
     console.error('Error parsing CSV:', error);
     return [];

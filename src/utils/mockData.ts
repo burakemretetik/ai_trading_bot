@@ -59,8 +59,10 @@ export const createMockStocksFromCSV = async () => {
       return [];
     }
     
-    // Create mock stocks from CSV data (taking first 50 for better performance)
-    const stocks: Stock[] = csvData.slice(0, 50).map((item, index) => {
+    console.log(`Loading all ${csvData.length} stocks from BIST 100 CSV`);
+    
+    // Create mock stocks from ALL CSV data (removed the slice)
+    const stocks: Stock[] = csvData.map((item, index) => {
       // Assign a random tracked status (with some being tracked by default)
       const tracked = index < 5 || Math.random() > 0.8;
       
