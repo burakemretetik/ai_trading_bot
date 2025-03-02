@@ -1,8 +1,10 @@
 
-import React from 'react';
-import { Stock } from '@/utils/types';
+import React, { useEffect, useState } from 'react';
+import { Stock, NewsItem } from '@/utils/types';
 import StockCard from '@/components/StockCard';
 import EmptyState from '@/components/EmptyState';
+import { checkForNewsAndNotifyUser } from '@/services/newsService';
+import { toast } from 'sonner';
 
 type TrackedStocksListProps = {
   stocks: Stock[];
@@ -17,8 +19,41 @@ const TrackedStocksList = ({
   onToggleTracking, 
   onSearchClick 
 }: TrackedStocksListProps) => {
+  const [lastCheckTimestamp, setLastCheckTimestamp] = useState<string | null>(null);
   const trackedStocks = stocks.filter(stock => stock.tracked);
   const hasNewsInTrackedStocks = trackedStocks.some(stock => stock.news.length > 0);
+
+  useEffect(() => {
+    // Check for new news on component mount
+    checkForLatestNews();
+    
+    // Set up interval to check for news every 5 minutes
+    const intervalId = setInterval(checkForLatestNews, 5 * 60 * 1000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+  
+  const checkForLatestNews = async () => {
+    try {
+      const response = await fetch('/news_archive.json');
+      const data = await response.json();
+      
+      // If this is the first check or if the timestamp has changed, update news
+      if (!lastCheckTimestamp || lastCheckTimestamp !== data.timestamp) {
+        console.log('News file updated, checking for new stock news');
+        setLastCheckTimestamp(data.timestamp);
+        
+        // This will check if there are news for tracked stocks and show notifications
+        const hasNews = await checkForNewsAndNotifyUser();
+        
+        if (!hasNews) {
+          console.log('No new news for tracked stocks found');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking latest news:', error);
+    }
+  };
 
   if (loading) {
     return (

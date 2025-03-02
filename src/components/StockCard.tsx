@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Star, RefreshCw } from 'lucide-react';
 import { Stock, NewsItem } from '@/utils/types';
@@ -5,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import NewsItemComponent from './NewsItem';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
+import { getNewsUrlsForStock } from '@/services/newsService';
 
 interface StockCardProps {
   stock: Stock;
@@ -14,14 +16,37 @@ interface StockCardProps {
 const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
   const [loading, setLoading] = useState(false);
   const [news, setNews] = useState<NewsItem[]>(stock.news);
+  const [lastNewsUpdate, setLastNewsUpdate] = useState<string | null>(null);
   
   useEffect(() => {
     // Get news from database
     fetchNewsFromDB();
-  }, [stock.id]);
+    
+    // Set up interval to check for news updates every minute
+    const checkForUpdates = async () => {
+      try {
+        const response = await fetch('/news_archive.json');
+        const data = await response.json();
+        
+        // If the timestamp has changed, refresh news
+        if (lastNewsUpdate !== data.timestamp) {
+          console.log(`News archive updated for ${stock.symbol}, refreshing news`);
+          setLastNewsUpdate(data.timestamp);
+          fetchNewsFromDB();
+        }
+      } catch (error) {
+        console.error('Error checking for news updates:', error);
+      }
+    };
+    
+    const intervalId = setInterval(checkForUpdates, 60 * 1000); // Check every minute
+    
+    return () => clearInterval(intervalId);
+  }, [stock.id, lastNewsUpdate]);
   
   const fetchNewsFromDB = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('stock_news')
         .select('*')
@@ -48,9 +73,30 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
         }));
         
         setNews(newsItems);
+      } else {
+        // Also check if there are any news URLs in the stock_news_mapping.json file
+        const newsUrls = await getNewsUrlsForStock(stock.symbol);
+        
+        if (newsUrls && newsUrls.length > 0) {
+          // Create simplified news items from URLs
+          const mappedNewsItems: NewsItem[] = newsUrls.map((url, index) => ({
+            id: `mapped-${stock.symbol}-${index}`,
+            title: `${stock.name} ile ilgili yeni haber`,
+            source: new URL(url).hostname.replace('www.', ''),
+            url: url,
+            publishedAt: new Date().toISOString(),
+            summary: 'Bu habere tıklayarak detayları görebilirsiniz.',
+            sentiment: 'neutral' as "positive" | "negative" | "neutral",
+            signalStrength: 'medium' as "strong" | "medium" | "weak" | "neutral",
+          }));
+          
+          setNews(mappedNewsItems);
+        }
       }
     } catch (err) {
       console.error('Error in fetchNewsFromDB:', err);
+    } finally {
+      setLoading(false);
     }
   };
   
