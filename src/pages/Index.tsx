@@ -4,20 +4,21 @@ import Header from '@/components/Header';
 import IndexHeader from '@/components/IndexHeader';
 import TrackedStocksList from '@/components/TrackedStocksList';
 import SearchBar from '@/components/SearchBar';
+import WhatsAppSettings from '@/components/WhatsAppSettings';
 import { useStocks } from '@/hooks/useStocks';
 import { toast } from 'sonner';
 
 export default function Index() {
   const { stocks, loading, handleToggleTracking, handleAddStock } = useStocks();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const handleSearchClick = () => {
     setIsSearchOpen(true);
   };
 
   const handleSettingsClick = () => {
-    // This would be implemented when settings functionality is needed
-    toast('Settings functionality will be added soon');
+    setShowSettings(!showSettings);
   };
   
   return (
@@ -30,12 +31,18 @@ export default function Index() {
       <main className="container mx-auto px-4 py-8">
         <IndexHeader onAddStock={handleSearchClick} />
         
-        <TrackedStocksList 
-          stocks={stocks}
-          loading={loading}
-          onToggleTracking={handleToggleTracking}
-          onSearchClick={handleSearchClick}
-        />
+        {showSettings ? (
+          <div className="my-6">
+            <WhatsAppSettings />
+          </div>
+        ) : (
+          <TrackedStocksList 
+            stocks={stocks}
+            loading={loading}
+            onToggleTracking={handleToggleTracking}
+            onSearchClick={handleSearchClick}
+          />
+        )}
       </main>
       
       <SearchBar

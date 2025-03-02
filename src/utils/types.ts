@@ -25,6 +25,11 @@ export interface EmailSettings {
   signalThreshold: SignalStrength;
 }
 
+export interface UserSettings {
+  phoneNumber: string;
+  whatsappEnabled: boolean;
+}
+
 export type SignalStrength = "strong" | "medium" | "weak" | "neutral";
 
 export interface StockNewsMapping {
@@ -34,3 +39,4 @@ export interface StockNewsMapping {
     [symbol: string]: string[];
   };
 }
+

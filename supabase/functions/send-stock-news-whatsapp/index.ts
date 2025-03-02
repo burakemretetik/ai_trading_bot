@@ -15,26 +15,31 @@ serve(async (req) => {
   }
 
   try {
-    const { content, stockNews } = await req.json();
+    const { content, stockNews, recipientPhoneNumber } = await req.json();
     
     console.log("WhatsApp notification request received");
     console.log("Content:", content);
     console.log("Stock news data:", JSON.stringify(stockNews, null, 2));
+    console.log("Recipient Phone Number:", recipientPhoneNumber);
     
     // WhatsApp Business API integration
     const whatsappToken = Deno.env.get("WHATSAPP_BUSINESS_TOKEN");
     const whatsappPhoneNumberId = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID");
-    const recipientPhoneNumber = Deno.env.get("RECIPIENT_PHONE_NUMBER");
     
     if (!whatsappToken || !whatsappPhoneNumberId || !recipientPhoneNumber) {
-      console.error("Missing WhatsApp Business API credentials or recipient phone number");
+      const missingParams = [];
+      if (!whatsappToken) missingParams.push("WHATSAPP_BUSINESS_TOKEN");
+      if (!whatsappPhoneNumberId) missingParams.push("WHATSAPP_PHONE_NUMBER_ID");
+      if (!recipientPhoneNumber) missingParams.push("recipientPhoneNumber");
+      
+      console.error(`Missing required parameters: ${missingParams.join(", ")}`);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: "Missing WhatsApp Business API credentials or recipient phone number" 
+          message: `Missing required parameters: ${missingParams.join(", ")}` 
         }),
         {
-          status: 500,
+          status: 400,
           headers: {
             "Content-Type": "application/json",
             ...corsHeaders
@@ -57,6 +62,8 @@ serve(async (req) => {
           body: content
         }
       };
+      
+      console.log("Sending WhatsApp message with payload:", JSON.stringify(payload, null, 2));
       
       // Send the message via WhatsApp Business API
       const response = await fetch(url, {

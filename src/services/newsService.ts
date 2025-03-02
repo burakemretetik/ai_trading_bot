@@ -4,6 +4,7 @@ import stockNewsMapping from '@/utils/stock_news_mapping.json';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getTrackedStocks } from './stockService';
+import { getUserSettings, hasValidPhoneNumber, formatPhoneNumber } from '@/services/userSettingsService';
 
 // This function will check if there's any news for stocks the user is tracking
 export async function checkForNewsAndNotifyUser(): Promise<boolean> {
@@ -41,8 +42,19 @@ export async function checkForNewsAndNotifyUser(): Promise<boolean> {
         { duration: 5000 }
       );
       
-      // Send a WhatsApp notification with the news if there are relevant updates
-      await sendWhatsAppNotification(relevantNews);
+      // Get user settings to check if WhatsApp is enabled and has a valid phone number
+      const userSettings = getUserSettings();
+      
+      // Only send WhatsApp notification if enabled and has a valid phone number
+      if (userSettings.whatsappEnabled && hasValidPhoneNumber()) {
+        await sendWhatsAppNotification(relevantNews);
+      } else if (userSettings.whatsappEnabled && !hasValidPhoneNumber()) {
+        // Remind user to set up their phone number if WhatsApp is enabled but no phone number
+        toast.warning(
+          'WhatsApp bildirimleri için telefon numaranızı ayarlar sayfasından eklemelisiniz',
+          { duration: 7000 }
+        );
+      }
       
       return true;
     }
@@ -78,14 +90,26 @@ function formatNewsForWhatsApp(stockNews: Record<string, string[]>): string {
 // Send WhatsApp notification with stock news to the user
 async function sendWhatsAppNotification(stockNews: Record<string, string[]>): Promise<void> {
   try {
+    // Get user phone number from settings
+    const { phoneNumber } = getUserSettings();
+    
+    if (!phoneNumber) {
+      console.log('No phone number found for WhatsApp notification');
+      return;
+    }
+    
     // Format the WhatsApp content
     const whatsappContent = formatNewsForWhatsApp(stockNews);
+    
+    // Format phone number to international format
+    const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
     
     // Call the Supabase function to send the WhatsApp notification
     const { data, error } = await supabase.functions.invoke('send-stock-news-whatsapp', {
       body: {
         content: whatsappContent,
-        stockNews
+        stockNews,
+        recipientPhoneNumber: formattedPhoneNumber
       }
     });
     
