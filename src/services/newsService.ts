@@ -75,13 +75,13 @@ function formatNewsForWhatsApp(stockNews: Record<string, string[]>): string {
   return whatsappContent;
 }
 
-// Send WhatsApp notification with stock news to the user using Twilio
+// Send WhatsApp notification with stock news to the user
 async function sendWhatsAppNotification(stockNews: Record<string, string[]>): Promise<void> {
   try {
     // Format the WhatsApp content
     const whatsappContent = formatNewsForWhatsApp(stockNews);
     
-    // Call the Supabase function to send the WhatsApp notification via Twilio
+    // Call the Supabase function to send the WhatsApp notification
     const { data, error } = await supabase.functions.invoke('send-stock-news-whatsapp', {
       body: {
         content: whatsappContent,
@@ -93,7 +93,7 @@ async function sendWhatsAppNotification(stockNews: Record<string, string[]>): Pr
       console.error('Error sending WhatsApp notification:', error);
       toast.error('WhatsApp bildirimi gönderilemedi');
     } else if (data && data.success) {
-      console.log('WhatsApp notification sent successfully via Twilio:', data);
+      console.log('WhatsApp notification sent successfully:', data);
       toast.success('WhatsApp bildirimi gönderildi');
     } else {
       console.error('WhatsApp notification failed:', data);
