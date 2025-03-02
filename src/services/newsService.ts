@@ -82,7 +82,7 @@ async function sendWhatsAppNotification(stockNews: Record<string, string[]>): Pr
     const whatsappContent = formatNewsForWhatsApp(stockNews);
     
     // Call the Supabase function to send the WhatsApp notification
-    const { error } = await supabase.functions.invoke('send-stock-news-whatsapp', {
+    const { data, error } = await supabase.functions.invoke('send-stock-news-whatsapp', {
       body: {
         content: whatsappContent,
         stockNews
@@ -92,9 +92,12 @@ async function sendWhatsAppNotification(stockNews: Record<string, string[]>): Pr
     if (error) {
       console.error('Error sending WhatsApp notification:', error);
       toast.error('WhatsApp bildirimi gönderilemedi');
-    } else {
-      console.log('WhatsApp notification sent successfully');
+    } else if (data && data.success) {
+      console.log('WhatsApp notification sent successfully:', data);
       toast.success('WhatsApp bildirimi gönderildi');
+    } else {
+      console.error('WhatsApp notification failed:', data);
+      toast.error('WhatsApp bildirimi gönderilemedi: ' + (data?.message || 'Bilinmeyen hata'));
     }
   } catch (error) {
     console.error('Error in sendWhatsAppNotification:', error);

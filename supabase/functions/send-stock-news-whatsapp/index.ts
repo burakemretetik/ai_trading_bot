@@ -21,20 +21,17 @@ serve(async (req) => {
     console.log("Content:", content);
     console.log("Stock news data:", JSON.stringify(stockNews, null, 2));
     
-    // In a real implementation, you would use the WhatsApp Business API or a service like Twilio
-    // Example with Twilio (uncomment and configure with your Twilio credentials):
+    // WhatsApp Business API integration
+    const whatsappToken = Deno.env.get("WHATSAPP_BUSINESS_TOKEN");
+    const whatsappPhoneNumberId = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID");
+    const recipientPhoneNumber = Deno.env.get("RECIPIENT_PHONE_NUMBER");
     
-    const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-    const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-    const twilioWhatsAppNumber = Deno.env.get("TWILIO_WHATSAPP_NUMBER");
-    const userWhatsAppNumber = Deno.env.get("USER_WHATSAPP_NUMBER"); // The recipient's number
-    
-    if (!twilioAccountSid || !twilioAuthToken || !twilioWhatsAppNumber || !userWhatsAppNumber) {
-      console.error("Missing Twilio credentials or WhatsApp numbers");
+    if (!whatsappToken || !whatsappPhoneNumberId || !recipientPhoneNumber) {
+      console.error("Missing WhatsApp Business API credentials or recipient phone number");
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: "Missing Twilio credentials or WhatsApp numbers" 
+          message: "Missing WhatsApp Business API credentials or recipient phone number" 
         }),
         {
           status: 500,
@@ -47,28 +44,39 @@ serve(async (req) => {
     }
     
     try {
-      const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`, {
+      // WhatsApp Business API endpoint
+      const url = `https://graph.facebook.com/v17.0/${whatsappPhoneNumberId}/messages`;
+      
+      // Prepare the request payload
+      const payload = {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: recipientPhoneNumber,
+        type: "text",
+        text: { 
+          body: content
+        }
+      };
+      
+      // Send the message via WhatsApp Business API
+      const response = await fetch(url, {
         method: "POST",
         headers: {
-          "Authorization": `Basic ${btoa(`${twilioAccountSid}:${twilioAuthToken}`)}`,
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Bearer ${whatsappToken}`,
+          "Content-Type": "application/json",
         },
-        body: new URLSearchParams({
-          From: `whatsapp:${twilioWhatsAppNumber}`,
-          To: `whatsapp:${userWhatsAppNumber}`,
-          Body: content,
-        }),
+        body: JSON.stringify(payload),
       });
       
       const result = await response.json();
-      console.log("Twilio API response:", result);
+      console.log("WhatsApp Business API response:", result);
       
       if (response.ok) {
         return new Response(
           JSON.stringify({ 
             success: true, 
             message: "WhatsApp notification sent successfully",
-            sid: result.sid 
+            messageId: result.messages?.[0]?.id
           }),
           {
             status: 200,
@@ -79,11 +87,11 @@ serve(async (req) => {
           }
         );
       } else {
-        console.error("Error from Twilio API:", result);
+        console.error("Error from WhatsApp Business API:", result);
         return new Response(
           JSON.stringify({ 
             success: false, 
-            message: "Error from Twilio API",
+            message: "Error from WhatsApp Business API",
             error: result 
           }),
           {
@@ -95,13 +103,13 @@ serve(async (req) => {
           }
         );
       }
-    } catch (twilioError) {
-      console.error("Error calling Twilio API:", twilioError);
+    } catch (whatsappError) {
+      console.error("Error calling WhatsApp Business API:", whatsappError);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: "Error calling Twilio API",
-          error: twilioError.message 
+          message: "Error calling WhatsApp Business API",
+          error: whatsappError.message 
         }),
         {
           status: 500,
