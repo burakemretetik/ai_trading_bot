@@ -1,37 +1,4 @@
 {
   "timestamp": "2025-03-02T23:38:32.256453",
   "updated": false,
-  "stock_news": {
-    "ASELS": [
-      "https://www.bloomberght.com/aselsan-bmc-ile-yeni-sozlesme-imzaladi-3742401"
-    ],
-    "THYAO": [
-      "https://bigpara.hurriyet.com.tr/haberler/ekonomi-haberleri/thy-2024-yilinda-85-2-milyon-yolcuya-hizmet-verdi_ID1608355/"
-    ],
-    "TCELL": [
-      "https://bigpara.hurriyet.com.tr/haberler/ekonomi-haberleri/turkcellden-2024te-54-8-milyar-tl-yatirim_ID1608318/"
-    ],
-    "GARAN": [
-      "https://www.bloomberght.com/yapi-kredi-dolar-cinsi-tahvil-ihrac-ediyor-3742361",
-      "https://www.bloomberght.com/doviz-mevduatlarinda-yerel-secimlerden-beri-en-hizli-artis-3741568"
-    ],
-    "TOASO": [
-      "https://www.haberturk.com/oyak-renault-8-milyonuncu-araci-uretti-3770004-ekonomi"
-    ],
-    "KOZAL": [
-      "https://www.bloomberght.com/altin-fiyatlarinda-son-durum-3742756"
-    ],
-    "TTKOM": [
-      "https://www.cnnturk.com/ekonomi/turkiyenin-elektrik-uretimi-aralik-2024te-9-85-artti-2248269"
-    ],
-    "EREGL": [
-      "https://www.haberturk.com/cimsadan-2024-yilinda-282-milyar-tl-ciro-3779-ekonomi"
-    ],
-    "TUPRS": [
-      "https://www.trthaber.com/haber/ekonomi/sebekeye-dogal-gaz-girisinde-rekor-899409.html"
-    ],
-    "KCHOL": [
-      "https://www.cnnturk.com/ekonomi/tarim-ve-orman-sektoru-dort-yilin-en-yuksek-buyumesini-gerceklestirdi-2247651"
-    ]
-  }
-}
+  "stock_news": {}
