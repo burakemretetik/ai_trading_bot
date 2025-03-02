@@ -52,7 +52,7 @@ export default function Index() {
         // Check for news updates and notify user if there are any
         const hasNews = await checkForNewsAndNotifyUser();
         if (hasNews) {
-          console.log('News notifications sent to user');
+          console.log('WhatsApp notifications sent to user for news updates');
         }
       } catch (error) {
         console.error('Error loading stocks:', error);

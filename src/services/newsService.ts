@@ -41,8 +41,8 @@ export async function checkForNewsAndNotifyUser(): Promise<boolean> {
         { duration: 5000 }
       );
       
-      // Send an email with the news if there are relevant updates
-      await sendNewsEmail(relevantNews);
+      // Send a WhatsApp notification with the news if there are relevant updates
+      await sendWhatsAppNotification(relevantNews);
       
       return true;
     }
@@ -60,45 +60,44 @@ export function getNewsUrlsForStock(symbol: string): string[] {
   return mapping.stock_news[symbol] || [];
 }
 
-// Helper to format news for email
-export function formatNewsForEmail(stockNews: Record<string, string[]>): string {
-  let emailContent = `<h1>Takip Ettiğiniz Hisseler İçin Son Haberler</h1>`;
+// Helper to format news for WhatsApp
+function formatNewsForWhatsApp(stockNews: Record<string, string[]>): string {
+  let whatsappContent = `*Takip Ettiğiniz Hisseler İçin Son Haberler*\n\n`;
   
   for (const [symbol, urls] of Object.entries(stockNews)) {
-    emailContent += `<h2>${symbol}</h2><ul>`;
+    whatsappContent += `*${symbol}*\n`;
     for (const url of urls) {
-      emailContent += `<li><a href="${url}">${url}</a></li>`;
+      whatsappContent += `- ${url}\n`;
     }
-    emailContent += `</ul>`;
+    whatsappContent += `\n`;
   }
   
-  return emailContent;
+  return whatsappContent;
 }
 
-// Send email with stock news to the user
-async function sendNewsEmail(stockNews: Record<string, string[]>): Promise<void> {
+// Send WhatsApp notification with stock news to the user
+async function sendWhatsAppNotification(stockNews: Record<string, string[]>): Promise<void> {
   try {
-    // Format the email content
-    const emailContent = formatNewsForEmail(stockNews);
+    // Format the WhatsApp content
+    const whatsappContent = formatNewsForWhatsApp(stockNews);
     
-    // Call the Supabase function to send the email
-    const { error } = await supabase.functions.invoke('send-stock-news-email', {
+    // Call the Supabase function to send the WhatsApp notification
+    const { error } = await supabase.functions.invoke('send-stock-news-whatsapp', {
       body: {
-        content: emailContent,
-        subject: "Takip Ettiğiniz Hisseler İçin Yeni Haberler",
+        content: whatsappContent,
         stockNews
       }
     });
     
     if (error) {
-      console.error('Error sending news email:', error);
-      toast.error('Haber e-postası gönderilemedi');
+      console.error('Error sending WhatsApp notification:', error);
+      toast.error('WhatsApp bildirimi gönderilemedi');
     } else {
-      console.log('News email sent successfully');
-      toast.success('Haber e-postası gönderildi');
+      console.log('WhatsApp notification sent successfully');
+      toast.success('WhatsApp bildirimi gönderildi');
     }
   } catch (error) {
-    console.error('Error in sendNewsEmail:', error);
-    toast.error('Haber e-postası gönderilirken bir hata oluştu');
+    console.error('Error in sendWhatsAppNotification:', error);
+    toast.error('WhatsApp bildirimi gönderilirken bir hata oluştu');
   }
 }
