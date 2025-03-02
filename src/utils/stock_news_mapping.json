@@ -3,16 +3,12 @@
   "timestamp": "2025-03-02T14:30:45.123456",
   "updated": true,
   "stock_news": {
-    "Türk Hava Yolları": [
+    "THYAO": [
       "https://www.bloomberght.com/thy-yolcu-sayisinda-rekor-kiriyor-2345678",
       "https://www.cnnturk.com/ekonomi/thy-ucak-siparisi-icin-gorusiyor-98765"
     ],
-    "Şişecam": [
+    "SISE": [
       "https://www.haberturk.com/ekonomi/sisecam-yeni-fabrika-yatirimini-acikladi-876543"
-    ],
-    "Garanti Bankası": [
-      "https://bigpara.hurriyet.com.tr/haberler/ekonomi-haberleri/garanti-bankasi-ilk-ceyrek-karini-acikladi-234567",
-      "https://www.trthaber.com/haber/ekonomi/garanti-bankasi-yeni-kredi-paketini-duyurdu-345678.html"
     ]
   }
 }
