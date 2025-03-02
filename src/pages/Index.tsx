@@ -49,8 +49,11 @@ export default function Index() {
           setStocks(updatedMockStocks);
         }
         
-        // Check for news updates
-        await checkForNewsAndNotifyUser();
+        // Check for news updates and notify user if there are any
+        const hasNews = await checkForNewsAndNotifyUser();
+        if (hasNews) {
+          console.log('News notifications sent to user');
+        }
       } catch (error) {
         console.error('Error loading stocks:', error);
         

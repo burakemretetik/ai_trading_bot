@@ -1,6 +1,7 @@
 
 import { StockNewsMapping } from '@/utils/types';
 import stockNewsMapping from '@/utils/stock_news_mapping.json';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getTrackedStocks } from './stockService';
 
@@ -40,8 +41,9 @@ export async function checkForNewsAndNotifyUser(): Promise<boolean> {
         { duration: 5000 }
       );
       
-      // In a real implementation, this is where you'd call the email service
-      // For now, we'll just return true to indicate there was news
+      // Send an email with the news if there are relevant updates
+      await sendNewsEmail(relevantNews);
+      
       return true;
     }
     
@@ -71,4 +73,32 @@ export function formatNewsForEmail(stockNews: Record<string, string[]>): string 
   }
   
   return emailContent;
+}
+
+// Send email with stock news to the user
+async function sendNewsEmail(stockNews: Record<string, string[]>): Promise<void> {
+  try {
+    // Format the email content
+    const emailContent = formatNewsForEmail(stockNews);
+    
+    // Call the Supabase function to send the email
+    const { error } = await supabase.functions.invoke('send-stock-news-email', {
+      body: {
+        content: emailContent,
+        subject: "Takip Ettiğiniz Hisseler İçin Yeni Haberler",
+        stockNews
+      }
+    });
+    
+    if (error) {
+      console.error('Error sending news email:', error);
+      toast.error('Haber e-postası gönderilemedi');
+    } else {
+      console.log('News email sent successfully');
+      toast.success('Haber e-postası gönderildi');
+    }
+  } catch (error) {
+    console.error('Error in sendNewsEmail:', error);
+    toast.error('Haber e-postası gönderilirken bir hata oluştu');
+  }
 }
