@@ -134,10 +134,7 @@ const StockCard: React.FC<StockCardProps> = ({
           </div>
           
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" className="rounded-full" onClick={handleRefreshNews} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              <span className="sr-only">Refresh news</span>
-            </Button>
+            
             
             <Button variant="ghost" size="icon" className="rounded-full" onClick={() => onToggleTracking(stock.id)}>
               <Star className={`h-5 w-5 ${stock.tracked ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
@@ -146,27 +143,7 @@ const StockCard: React.FC<StockCardProps> = ({
         </div>
       </div>
       
-      <div className="p-4">
-        
-        {news.length > 0 ? news.map(item => <NewsItemComponent key={item.id} news={item} />) : <p className="text-sm text-muted-foreground py-4 text-center">Yeni Bir Gelişme Yok</p>}
-
-        {/* News URLs from news_archive.json */}
-        {newsUrls.length > 0 && <div className="mt-4">
-            
-            <Card>
-              <CardContent className="p-3">
-                <ul className="space-y-2">
-                  {newsUrls.map((url, index) => <li key={`archive-${index}`} className="text-sm flex items-center">
-                      <Globe className="h-3 w-3 mr-2 text-muted-foreground" />
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
-                        {new URL(url).hostname.replace('www.', '')}
-                      </a>
-                    </li>)}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>}
-      </div>
+      
     </div>;
 };
 export default StockCard;
