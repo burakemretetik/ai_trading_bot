@@ -11,6 +11,7 @@ import StockCard from '@/components/StockCard';
 import SearchBar from '@/components/SearchBar';
 import { toast } from 'sonner';
 import { getTrackedStocks, trackStock, untrackStock } from '@/services/stockService';
+import { checkForNewsAndNotifyUser } from '@/services/newsService';
 
 export default function Index() {
   const [stocks, setStocks] = useState<Stock[]>([]);
@@ -47,6 +48,9 @@ export default function Index() {
           
           setStocks(updatedMockStocks);
         }
+        
+        // Check for news updates
+        await checkForNewsAndNotifyUser();
       } catch (error) {
         console.error('Error loading stocks:', error);
         

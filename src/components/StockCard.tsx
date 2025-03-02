@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Star, RefreshCw } from 'lucide-react';
-import { Stock } from '@/utils/types';
+import { Stock, NewsItem } from '@/utils/types';
 import { Button } from '@/components/ui/button';
-import NewsItem from './NewsItem';
+import NewsItemComponent from './NewsItem';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 
@@ -14,7 +13,7 @@ interface StockCardProps {
 
 const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
   const [loading, setLoading] = useState(false);
-  const [news, setNews] = useState(stock.news);
+  const [news, setNews] = useState<NewsItem[]>(stock.news);
   
   useEffect(() => {
     // Get news from database
@@ -36,16 +35,16 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
       
       if (data && data.length > 0) {
         // Transform the data to match our NewsItem type
-        const newsItems = data.map(item => ({
+        const newsItems: NewsItem[] = data.map(item => ({
           id: item.id,
           title: item.title,
           source: item.source,
           url: item.url,
           publishedAt: item.published_at,
           summary: item.summary,
-          // Add mock sentiment and signal strength
-          sentiment: Math.random() > 0.6 ? 'positive' : Math.random() > 0.3 ? 'negative' : 'neutral',
-          signalStrength: Math.random() > 0.7 ? 'strong' : Math.random() > 0.4 ? 'medium' : Math.random() > 0.2 ? 'weak' : 'neutral',
+          // Add mock sentiment and signal strength with correct types
+          sentiment: (Math.random() > 0.6 ? 'positive' : Math.random() > 0.3 ? 'negative' : 'neutral') as "positive" | "negative" | "neutral",
+          signalStrength: (Math.random() > 0.7 ? 'strong' : Math.random() > 0.4 ? 'medium' : Math.random() > 0.2 ? 'weak' : 'neutral') as "strong" | "medium" | "weak" | "neutral",
         }));
         
         setNews(newsItems);
@@ -109,7 +108,7 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onToggleTracking }) => {
         <h4 className="text-sm font-medium mb-3">Latest News</h4>
         {news.length > 0 ? (
           news.map(item => (
-            <NewsItem key={item.id} news={item} />
+            <NewsItemComponent key={item.id} news={item} />
           ))
         ) : (
           <p className="text-sm text-muted-foreground py-4 text-center">No recent news available</p>
