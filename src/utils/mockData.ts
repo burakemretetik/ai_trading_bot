@@ -52,6 +52,12 @@ export const createMockStocksFromCSV = async () => {
     const { parseCSV } = await import('./csvParser');
     const csvData = await parseCSV('/bist_hisseleri.csv');
     
+    // If no CSV data is found, immediately return empty array to use fallback
+    if (!csvData || csvData.length === 0) {
+      console.log('No CSV data found, using fallback mock data');
+      return [];
+    }
+    
     // Create mock stocks from CSV data (taking first 50 for better performance)
     const stocks: Stock[] = csvData.slice(0, 50).map((item, index) => {
       // Assign a random tracked status (with some being tracked by default)
@@ -78,11 +84,11 @@ export const createMockStocksFromCSV = async () => {
   } catch (error) {
     console.error('Error creating mock stocks:', error);
     // Return the original mock data as fallback
-    return mockStocks;
+    return [];
   }
 };
 
-// Initial mock data (will be replaced with CSV data when loaded)
+// Initial mock data (will be used as fallback when CSV data cannot be loaded)
 export const mockStocks: Stock[] = [
   {
     id: '1',

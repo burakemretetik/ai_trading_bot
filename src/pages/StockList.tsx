@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Star, Search } from 'lucide-react';
@@ -28,23 +27,15 @@ const StockList = () => {
         console.log('Tracked stock IDs:', trackedStockIds);
         
         // Use CSV data if available, otherwise fall back to mock data
-        if (csvStocks && csvStocks.length > 0) {
-          // Update tracking status based on localStorage data
-          const updatedStocks = csvStocks.map(stock => ({
-            ...stock,
-            tracked: trackedStockIds.includes(stock.id)
-          }));
-          
-          setStocks(updatedStocks);
-        } else {
-          // For mock data, also check localStorage
-          const updatedMockStocks = mockStocks.map(stock => ({
-            ...stock,
-            tracked: trackedStockIds.includes(stock.id)
-          }));
-          
-          setStocks(updatedMockStocks);
-        }
+        const baseStocks = csvStocks && csvStocks.length > 0 ? csvStocks : mockStocks;
+        
+        // Update tracking status based on localStorage data
+        const updatedStocks = baseStocks.map(stock => ({
+          ...stock,
+          tracked: trackedStockIds.includes(stock.id)
+        }));
+        
+        setStocks(updatedStocks);
       } catch (error) {
         console.error('Error loading stocks:', error);
         
