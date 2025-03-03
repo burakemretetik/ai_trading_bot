@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Star, RefreshCw, Globe } from 'lucide-react';
 import { Stock, NewsItem } from '@/utils/types';
@@ -24,19 +23,15 @@ const StockCard: React.FC<StockCardProps> = ({
   const [newsUrls, setNewsUrls] = useState<string[]>([]);
 
   useEffect(() => {
-    // Get news from database
     fetchNewsFromDB();
 
-    // Fetch news URLs from stock_news_mapping.json
     fetchNewsUrls();
 
-    // Set up interval to check for news updates every minute
     const checkForUpdates = async () => {
       try {
         const response = await fetch('/news_archive.json');
         const data = await response.json();
 
-        // If the timestamp has changed, refresh news
         if (lastNewsUpdate !== data.timestamp) {
           console.log(`News archive updated for ${stock.symbol}, refreshing news`);
           setLastNewsUpdate(data.timestamp);
@@ -47,7 +42,7 @@ const StockCard: React.FC<StockCardProps> = ({
         console.error('Error checking for news updates:', error);
       }
     };
-    const intervalId = setInterval(checkForUpdates, 60 * 1000); // Check every minute
+    const intervalId = setInterval(checkForUpdates, 60 * 1000);
 
     return () => clearInterval(intervalId);
   }, [stock.id, lastNewsUpdate]);
@@ -77,7 +72,6 @@ const StockCard: React.FC<StockCardProps> = ({
         return;
       }
       if (data && data.length > 0) {
-        // Transform the data to match our NewsItem type
         const newsItems: NewsItem[] = data.map(item => ({
           id: item.id,
           title: item.title,
@@ -85,16 +79,13 @@ const StockCard: React.FC<StockCardProps> = ({
           url: item.url,
           publishedAt: item.published_at,
           summary: item.summary,
-          // Add mock sentiment and signal strength with correct types
           sentiment: (Math.random() > 0.6 ? 'positive' : Math.random() > 0.3 ? 'negative' : 'neutral') as "positive" | "negative" | "neutral",
           signalStrength: (Math.random() > 0.7 ? 'strong' : Math.random() > 0.4 ? 'medium' : Math.random() > 0.2 ? 'weak' : 'neutral') as "strong" | "medium" | "weak" | "neutral"
         }));
         setNews(newsItems);
       } else {
-        // Also check if there are any news URLs in the stock_news_mapping.json file
         const newsUrls = await getNewsUrlsForStock(stock.symbol);
         if (newsUrls && newsUrls.length > 0) {
-          // Create simplified news items from URLs
           const mappedNewsItems: NewsItem[] = newsUrls.map((url, index) => ({
             id: `mapped-${stock.symbol}-${index}`,
             title: `${stock.name} ile ilgili yeni haber`,
@@ -171,9 +162,7 @@ const StockCard: React.FC<StockCardProps> = ({
             ))}
           </div>
         ) : (
-          <div className="text-center py-4 text-muted-foreground text-sm">
-            No news available
-          </div>
+          <div className="flex-grow"></div>
         )}
       </CardContent>
       
