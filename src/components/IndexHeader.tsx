@@ -8,7 +8,7 @@ const IndexHeader: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-semibold">Takip Ettiğiniz Hisseler</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Takip Ettiğiniz Hisseler</h1>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" asChild>
             <Link to="/stocks" className="flex items-center">

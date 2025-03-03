@@ -207,7 +207,7 @@ const StockList = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
-            <h1 className="text-xl font-semibold">BIST 100 Hisseleri</h1>
+            <h1 className="text-xl font-semibold tracking-tight">BIST 100 Hisseleri</h1>
           </div>
         </div>
       </header>
