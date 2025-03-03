@@ -285,11 +285,11 @@ def create_stock_news_mapping(direct_news):
     
     return stock_news_mapping
 
-def save_stock_news_mapping(stock_news_mapping, timestamp):
+def save_stock_news_mapping(stock_news_mapping, timestamp, force_update=False):
     """Save the stock-to-news mapping to a JSON file"""
     mapping_data = {
         "timestamp": timestamp,
-        "updated": len(stock_news_mapping) > 0,
+        "updated": force_update or len(stock_news_mapping) > 0,  # Set to true if force_update or if there are new mappings
         "stock_news": stock_news_mapping
     }
     
@@ -304,7 +304,7 @@ def ensure_mapping_file_exists():
         # Create an empty mapping file
         mapping_data = {
             "timestamp": datetime.utcnow().isoformat(),
-            "updated": False,
+            "updated": True,  # Initial file should be considered an update
             "stock_news": {}
         }
         with open("stock_news_mapping.json", "w", encoding="utf-8") as f:
@@ -329,7 +329,7 @@ def main():
     # Identify new articles
     new_articles = identify_new_articles(news_links, historical_data)
     
-    # Replace historical data with current batch - UPDATED PART
+    # Replace historical data with current batch
     new_historical_data = {
         "timestamp": current_time_iso,
         "news_links": news_links
@@ -356,6 +356,9 @@ def main():
         "batch_results": []
     }
     
+    # Flag to track if we actually have new stock news
+    has_new_stock_news = False
+    
     # Output new articles
     if new_articles:
         print(f"\n{len(new_articles)} NEW ARTICLES FOUND IN THIS RUN:")
@@ -371,6 +374,7 @@ def main():
             print("\nRELEVANT NEWS FOUND:")
             for news in analysis_results["direct_news"]:
                 print(f"Stock: {news['hisse_kodu']} - {news['sirket_adi']} - URL: {news['haber_url']}")
+            has_new_stock_news = True
         else:
             print("\nNo relevant news found for BIST 100 stocks.")
     else:
@@ -405,6 +409,7 @@ def main():
                     "sirket_adi": stock_data["sirket_adi"],
                     "haberler": []
                 }
+                new_mapping_items = True
             elif "hisse_kodu" not in existing_mapping[stock_code]:
                 # Add hisse_kodu to existing entries that might not have it
                 existing_mapping[stock_code]["hisse_kodu"] = stock_code
@@ -414,13 +419,13 @@ def main():
                 if news_url not in existing_mapping[stock_code]["haberler"]:
                     existing_mapping[stock_code]["haberler"].append(news_url)
                     new_mapping_items = True
-    else:
-        new_mapping_items = False
+        
+        has_new_stock_news = new_mapping_items
     
-    # Always save the mapping file with current timestamp in every run
+    # Always force the "updated" flag to true in every run for notification purposes
     mapping_data = {
-        "timestamp": current_time_iso,  # Always update timestamp
-        "updated": new_mapping_items,
+        "timestamp": current_time_iso,
+        "updated": True,  # Always set to true to trigger notification
         "stock_news": existing_mapping
     }
     
@@ -428,10 +433,12 @@ def main():
         json.dump(mapping_data, f, indent=2, ensure_ascii=False)
     
     print(f"\nStock news mapping updated at {current_time_iso}")
-    if new_mapping_items:
-        print(f"Added new news for stocks")
+    print(f"Updated flag set to TRUE for notification purposes")
+    
+    if has_new_stock_news:
+        print("Added new stock-specific news to the mapping")
     else:
-        print("No new stock-specific news added in this run")
+        print("No new stock-specific news added in this run, but updated flag is true for notification")
 
 if __name__ == "__main__":
     main()
