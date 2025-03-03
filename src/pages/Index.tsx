@@ -43,7 +43,6 @@ export default function Index() {
               stocks={stocks}
               loading={loading}
               onToggleTracking={handleToggleTracking}
-              onSearchClick={handleSearchClick}
               isFollowAllActive={isFollowAllActive}
               onToggleFollowAll={handleToggleFollowAll}
             />

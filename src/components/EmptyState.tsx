@@ -2,12 +2,9 @@
 import React from 'react';
 import { List, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
-interface EmptyStateProps {
-  onSearchClick: () => void;
-}
-
-const EmptyState: React.FC<EmptyStateProps> = ({ onSearchClick }) => {
+const EmptyState: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center h-[60vh] max-w-md mx-auto text-center p-4 animate-fade-in">
       <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-6">
@@ -19,9 +16,11 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onSearchClick }) => {
         Haberler ve piyasa bilgilerini almak için hisseleri takip listenize ekleyin.
       </p>
       
-      <Button onClick={onSearchClick} size="lg" className="gap-2">
-        <List className="h-4 w-4" />
-        <span>Tüm Hisseler</span>
+      <Button asChild size="lg" className="gap-2">
+        <Link to="/stocks">
+          <List className="h-4 w-4" />
+          <span>Tüm Hisseler</span>
+        </Link>
       </Button>
     </div>
   );

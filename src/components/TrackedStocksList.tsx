@@ -11,7 +11,6 @@ type TrackedStocksListProps = {
   stocks: Stock[];
   loading: boolean;
   onToggleTracking: (id: string) => void;
-  onSearchClick?: () => void;
   isFollowAllActive?: boolean;
   onToggleFollowAll?: () => void;
 };
@@ -20,7 +19,6 @@ const TrackedStocksList = ({
   stocks,
   loading,
   onToggleTracking,
-  onSearchClick,
   isFollowAllActive,
   onToggleFollowAll
 }: TrackedStocksListProps) => {
@@ -29,10 +27,8 @@ const TrackedStocksList = ({
   const hasNewsInTrackedStocks = trackedStocks.some(stock => stock.news.length > 0);
 
   useEffect(() => {
-    // Check for new news on component mount
     checkForLatestNews();
 
-    // Set up interval to check for news every 5 minutes
     const intervalId = setInterval(checkForLatestNews, 5 * 60 * 1000);
     return () => clearInterval(intervalId);
   }, []);
@@ -42,12 +38,10 @@ const TrackedStocksList = ({
       const response = await fetch('/news_archive.json');
       const data = await response.json();
 
-      // If this is the first check or if the timestamp has changed, update news
       if (!lastCheckTimestamp || lastCheckTimestamp !== data.timestamp) {
         console.log('News file updated, checking for new stock news');
         setLastCheckTimestamp(data.timestamp);
 
-        // This will check if there are news for tracked stocks and show notifications
         const hasNews = await checkForNewsAndNotifyUser();
         if (!hasNews) {
           console.log('No new news for tracked stocks found');
@@ -65,7 +59,7 @@ const TrackedStocksList = ({
   }
 
   if (trackedStocks.length === 0) {
-    return <EmptyState onSearchClick={onSearchClick || (() => {})} />;
+    return <EmptyState />;
   }
 
   return <>
