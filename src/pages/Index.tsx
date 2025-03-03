@@ -38,14 +38,16 @@ export default function Index() {
             <WhatsAppSettings />
           </div>
         ) : (
-          <TrackedStocksList 
-            stocks={stocks}
-            loading={loading}
-            onToggleTracking={handleToggleTracking}
-            onSearchClick={handleSearchClick}
-            isFollowAllActive={isFollowAllActive}
-            onToggleFollowAll={handleToggleFollowAll}
-          />
+          <div className="mt-6">
+            <TrackedStocksList 
+              stocks={stocks}
+              loading={loading}
+              onToggleTracking={handleToggleTracking}
+              onSearchClick={handleSearchClick}
+              isFollowAllActive={isFollowAllActive}
+              onToggleFollowAll={handleToggleFollowAll}
+            />
+          </div>
         )}
       </main>
       
