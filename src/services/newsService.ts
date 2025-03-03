@@ -1,5 +1,5 @@
+
 import { StockNewsMapping } from '@/utils/types';
-import stockNewsMapping from '@/utils/stock_news_mapping.json';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getTrackedStocks } from './stockService';
@@ -8,23 +8,23 @@ import { getUserSettings, hasValidPhoneNumber, formatPhoneNumber } from '@/servi
 // This function will check if there's any news for stocks the user is tracking
 export async function checkForNewsAndNotifyUser(): Promise<boolean> {
   try {
-    // First, check if the news file has been updated
-    const newsResponse = await fetch('/news_archive.json');
-    const newsArchive = await newsResponse.json();
-    console.log('Checking for news updates at timestamp:', newsArchive.timestamp);
-    
-    // Then check the stock news mapping
+    // Get the stock news mapping
     const response = await fetch('/stock_news_mapping.json');
     const mapping: StockNewsMapping = await response.json();
     
+    console.log('Checking for news updates with timestamp:', mapping.timestamp);
+    console.log('Is mapping updated:', mapping.updated);
+    console.log('Available stocks with news:', Object.keys(mapping.stock_news).join(', '));
+    
     // Check if there are any news updates
     if (!mapping.updated || Object.keys(mapping.stock_news).length === 0) {
-      console.log('No news updates available');
+      console.log('No news updates available in the mapping file');
       return false;
     }
     
     // Get user's tracked stocks
     const trackedStockIds = await getTrackedStocks();
+    console.log('User tracked stocks:', trackedStockIds);
     
     // This would need to be adapted to your actual stock data structure
     // For now, we'll assume stock IDs and symbols are the same for simplicity
@@ -38,6 +38,9 @@ export async function checkForNewsAndNotifyUser(): Promise<boolean> {
       }
     }
     
+    console.log('Relevant news for tracked stocks:', Object.keys(relevantNews).length > 0 ? 
+      Object.keys(relevantNews).join(', ') : 'None');
+    
     // If there's relevant news, notify the user
     if (Object.keys(relevantNews).length > 0) {
       const stocksWithNews = Object.keys(relevantNews).join(', ');
@@ -50,10 +53,17 @@ export async function checkForNewsAndNotifyUser(): Promise<boolean> {
       
       // Get user settings to check if WhatsApp is enabled and has a valid phone number
       const userSettings = getUserSettings();
+      console.log('WhatsApp enabled:', userSettings.whatsappEnabled);
+      console.log('Has valid phone number:', hasValidPhoneNumber());
       
       // Only send WhatsApp notification if enabled and has a valid phone number
       if (userSettings.whatsappEnabled && hasValidPhoneNumber()) {
-        await sendWhatsAppNotification(relevantNews);
+        try {
+          await sendWhatsAppNotification(relevantNews);
+        } catch (whatsappError) {
+          console.error('Error in WhatsApp notification:', whatsappError);
+          toast.error('WhatsApp bildirimi gönderilirken bir hata oluştu');
+        }
       } else if (userSettings.whatsappEnabled && !hasValidPhoneNumber()) {
         // Remind user to set up their phone number if WhatsApp is enabled but no phone number
         toast.warning(
@@ -65,6 +75,7 @@ export async function checkForNewsAndNotifyUser(): Promise<boolean> {
       return true;
     }
     
+    console.log('No relevant news found for tracked stocks');
     return false;
   } catch (error) {
     console.error('Error in checkForNewsAndNotifyUser:', error);
@@ -120,6 +131,7 @@ async function sendWhatsAppNotification(stockNews: Record<string, string[]>): Pr
     
     if (!phoneNumber) {
       console.log('No phone number found for WhatsApp notification');
+      toast.warning('WhatsApp bildirimi için telefon numarası ayarlanmamış');
       return;
     }
     
@@ -128,6 +140,7 @@ async function sendWhatsAppNotification(stockNews: Record<string, string[]>): Pr
     
     // Format phone number to international format
     const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
+    console.log('Sending WhatsApp notification to:', formattedPhoneNumber);
     
     // Call the Supabase function to send the WhatsApp notification
     const { data, error } = await supabase.functions.invoke('send-stock-news-whatsapp', {
@@ -139,9 +152,12 @@ async function sendWhatsAppNotification(stockNews: Record<string, string[]>): Pr
     });
     
     if (error) {
-      console.error('Error sending WhatsApp notification:', error);
-      toast.error('WhatsApp bildirimi gönderilemedi');
-    } else if (data && data.success) {
+      console.error('Error invoking WhatsApp function:', error);
+      toast.error('WhatsApp bildirimi gönderilemedi: ' + error.message);
+      return;
+    }
+    
+    if (data && data.success) {
       console.log('WhatsApp notification sent successfully:', data);
       toast.success('WhatsApp bildirimi gönderildi');
     } else {
