@@ -1,19 +1,5 @@
 {
   "timestamp": "2025-03-03T01:04:22.823060",
   "updated": true,
-  "stock_news": {
-    "THYAO": [
-      "https://www.bloomberght.com/thy-yolcu-sayisinda-rekor-kiriyor-2345678",
-      "https://www.cnnturk.com/ekonomi/thy-ucak-siparisi-icin-gorusiyor-98765"
-    ],
-    "SISE": [
-      "https://www.haberturk.com/ekonomi/sisecam-yeni-fabrika-yatirimini-acikladi-876543"
-    ],
-    "ASELS": [
-      "https://www.bloomberght.com/aselsan-bmc-ile-yeni-sozlesme-imzaladi-3742401"
-    ],
-    "TCELL": [
-      "https://bigpara.hurriyet.com.tr/haberler/ekonomi-haberleri/turkcellden-2024te-54-8-milyar-tl-yatirim_ID1608318/"
-    ]
-  }
+  "stock_news": {}
 }
