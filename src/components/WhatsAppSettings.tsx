@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 import { 
   getUserSettings, 
   saveUserSettings, 
@@ -111,6 +112,12 @@ const WhatsAppSettings = () => {
         >
           {isLoading ? 'Kaydediliyor...' : 'Kaydet'}
         </Button>
+        
+        <div className="pt-2 text-center">
+          <Link to="/privacy" className="text-xs text-muted-foreground hover:text-primary hover:underline">
+            Gizlilik Politikası
+          </Link>
+        </div>
       </div>
     </div>
   );
