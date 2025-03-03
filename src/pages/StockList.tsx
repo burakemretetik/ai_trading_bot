@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Star, Search, CheckSquare } from 'lucide-react';
+import { ArrowLeft, Star, Search, CheckSquare, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Stock } from '@/utils/types';
@@ -209,6 +209,12 @@ const StockList = () => {
             </Button>
             <h1 className="text-xl font-semibold">BIST 100 Hisseleri</h1>
           </div>
+          
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/">
+              <Settings className="h-5 w-5" />
+            </Link>
+          </Button>
         </div>
       </header>
       
