@@ -12,7 +12,7 @@ type TrackedStocksListProps = {
   stocks: Stock[];
   loading: boolean;
   onToggleTracking: (id: string) => void;
-  onSearchClick: () => void;
+  onSearchClick?: () => void;
   isFollowAllActive?: boolean;
   onToggleFollowAll?: () => void;
 };
