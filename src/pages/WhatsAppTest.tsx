@@ -26,13 +26,14 @@ const WhatsAppTest = () => {
 
     setIsLoading(true);
     try {
-      const result = await checkForNewsAndNotifyUser();
+      // Pass forceNotify as true to force a test notification even if there's no news
+      const result = await checkForNewsAndNotifyUser(true);
       if (result) {
         toast.success('WhatsApp bildirimi gönderildi', {
           duration: 4000,
         });
       } else {
-        toast.info('Bildirim gönderilecek haber bulunamadı', {
+        toast.info('Bildirim gönderilirken bir sorun oluştu', {
           duration: 4000,
         });
       }
@@ -48,7 +49,7 @@ const WhatsAppTest = () => {
 
   return (
     <div className="container mx-auto px-4">
-      <Header />
+      <Header onSettingsClick={() => {}} />
       
       <div className="my-8 space-y-6">
         <h1 className="text-2xl font-bold">WhatsApp Bildirim Testi</h1>
@@ -69,7 +70,7 @@ const WhatsAppTest = () => {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Bu buton, güncel haber haritasını kontrol eder ve takip ettiğiniz hisseler için haberler varsa WhatsApp bildirimi gönderir.
+                Bu buton, telefon numaranıza test amaçlı bir WhatsApp bildirimi gönderir.
               </p>
               
               {!hasPhone && (
@@ -84,7 +85,7 @@ const WhatsAppTest = () => {
                 disabled={isLoading || !hasPhone}
                 className="w-full"
               >
-                {isLoading ? 'Gönderiliyor...' : 'WhatsApp Bildirimi Gönder'}
+                {isLoading ? 'Gönderiliyor...' : 'WhatsApp Test Bildirimi Gönder'}
               </Button>
             </CardFooter>
           </Card>
