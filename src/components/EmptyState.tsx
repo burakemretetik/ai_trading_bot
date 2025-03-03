@@ -11,8 +11,8 @@ const EmptyState: React.FC = () => {
         <TrendingUp className="h-8 w-8 text-primary" />
       </div>
       
-      <h2 className="text-2xl font-heading font-semibold mb-2">Henüz takip edilen hisse yok</h2>
-      <p className="text-muted-foreground mb-6 font-sans">
+      <h2 className="text-2xl font-semibold mb-2">Henüz takip edilen hisse yok</h2>
+      <p className="text-muted-foreground mb-6">
         Haberler ve piyasa bilgilerini almak için hisseleri takip listenize ekleyin.
       </p>
       
