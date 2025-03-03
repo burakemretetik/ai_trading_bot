@@ -1,14 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Star, Search, CheckSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Stock } from '@/utils/types';
 import { mockStocks, createMockStocksFromCSV } from '@/utils/mockData';
 import { toast } from 'sonner';
 import { getTrackedStocks, trackStock, untrackStock } from '@/services/stockService';
-import { Switch } from '@/components/ui/switch';
+import StockListHeader from '@/components/stock/StockListHeader';
+import FollowAllToggle from '@/components/stock/FollowAllToggle';
+import StockSearchBar from '@/components/stock/StockSearchBar';
+import StockListContent from '@/components/stock/StockListContent';
+import LoadingSkeleton from '@/components/stock/LoadingSkeleton';
 
 const StockList = () => {
   const [stocks, setStocks] = useState<Stock[]>([]);
@@ -198,24 +198,19 @@ const StockList = () => {
     }
   };
 
-  return <div className="min-h-screen bg-background">
-      <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-            </Button>
-            <h1 className="text-xl font-semibold tracking-tight">BIST 100 Hisseleri</h1>
-          </div>
-        </div>
-      </header>
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <StockListHeader />
       
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {loading ? <div className="animate-pulse space-y-4">
-            {[...Array(10)].map((_, i) => <div key={i} className="h-20 bg-muted rounded-lg"></div>)}
-          </div> : <div className="space-y-4">
+        {loading ? (
+          <LoadingSkeleton />
+        ) : (
+          <div className="space-y-4">
             <div className="flex justify-between mb-6">
               <h2 className="text-lg font-medium">Takip edebileceğiniz hisseler</h2>
               <div className="text-sm text-muted-foreground">
@@ -223,51 +218,26 @@ const StockList = () => {
               </div>
             </div>
             
-            <div className="flex items-center justify-between p-3 bg-card rounded-lg border mb-4">
-              <div className="flex items-center gap-2">
-                <CheckSquare className="h-5 w-5 text-primary" />
-                <span className="font-medium">Tüm hisseleri takip et</span>
-              </div>
-              <Switch 
-                checked={isFollowAllActive} 
-                onCheckedChange={handleToggleFollowAll}
-                aria-label="Tüm hisseleri takip et"
-              />
-            </div>
+            <FollowAllToggle 
+              isFollowAllActive={isFollowAllActive} 
+              onToggleFollowAll={handleToggleFollowAll} 
+            />
             
-            <div className="relative mb-6">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <Input type="text" placeholder="Hisse adı veya sembol ara..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
-            </div>
+            <StockSearchBar 
+              searchQuery={searchQuery} 
+              onSearchChange={handleSearchChange} 
+            />
             
-            <div className="bg-card rounded-lg border overflow-hidden">
-              <div className="grid grid-cols-12 px-4 py-3 bg-muted/50 border-b text-sm font-medium">
-                <div className="col-span-3">Sembol</div>
-                <div className="col-span-7">Şirket Adı</div>
-                <div className="col-span-2 text-center">Takip</div>
-              </div>
-              
-              {filteredStocks.length > 0 ? filteredStocks.map(stock => <div key={stock.id} className="grid grid-cols-12 px-4 py-4 border-b last:border-b-0 items-center hover:bg-muted/30 transition-colors">
-                    <div className="col-span-3 font-medium">{stock.symbol}</div>
-                    <div className="col-span-7 text-sm truncate" title={stock.name}>
-                      {stock.name}
-                    </div>
-                    <div className="col-span-2 flex justify-center">
-                      <Button variant="ghost" size="icon" className="rounded-full" onClick={() => handleToggleTracking(stock.id)}>
-                        <Star className={`h-5 w-5 ${stock.tracked ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
-                        <span className="sr-only">
-                          {stock.tracked ? 'Takipten çıkar' : 'Takip et'}
-                        </span>
-                      </Button>
-                    </div>
-                  </div>) : <div className="py-8 text-center">
-                  <p className="text-muted-foreground">"{searchQuery}" için sonuç bulunamadı</p>
-                </div>}
-            </div>
-          </div>}
+            <StockListContent 
+              filteredStocks={filteredStocks} 
+              searchQuery={searchQuery} 
+              onToggleTracking={handleToggleTracking} 
+            />
+          </div>
+        )}
       </main>
-    </div>;
+    </div>
+  );
 };
+
 export default StockList;
