@@ -4,14 +4,24 @@ import Header from '@/components/Header';
 import IndexHeader from '@/components/IndexHeader';
 import TrackedStocksList from '@/components/TrackedStocksList';
 import WhatsAppSettings from '@/components/WhatsAppSettings';
+import SearchBar from '@/components/SearchBar';
 import { useStocks } from '@/hooks/useStocks';
 
 export default function Index() {
-  const { stocks, loading, handleToggleTracking, handleAddStock } = useStocks();
+  const { stocks, loading, handleToggleTracking, handleAddStock, isFollowAllActive, handleToggleFollowAll } = useStocks();
   const [showSettings, setShowSettings] = useState(false);
+  const [showSearchBar, setShowSearchBar] = useState(false);
 
   const handleSettingsClick = () => {
     setShowSettings(!showSettings);
+  };
+  
+  const handleSearchClick = () => {
+    setShowSearchBar(true);
+  };
+  
+  const handleCloseSearch = () => {
+    setShowSearchBar(false);
   };
   
   return (
@@ -32,9 +42,19 @@ export default function Index() {
             stocks={stocks}
             loading={loading}
             onToggleTracking={handleToggleTracking}
+            onSearchClick={handleSearchClick}
+            isFollowAllActive={isFollowAllActive}
+            onToggleFollowAll={handleToggleFollowAll}
           />
         )}
       </main>
+      
+      {/* Search Bar Modal */}
+      <SearchBar
+        isOpen={showSearchBar}
+        onClose={handleCloseSearch}
+        onAddStock={handleAddStock}
+      />
     </div>
   );
 }

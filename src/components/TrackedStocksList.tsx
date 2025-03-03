@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Stock, NewsItem } from '@/utils/types';
 import StockCard from '@/components/StockCard';
@@ -66,7 +65,7 @@ const TrackedStocksList = ({
   }
 
   if (trackedStocks.length === 0) {
-    return <EmptyState onSearchClick={onSearchClick} />;
+    return <EmptyState onSearchClick={onSearchClick || (() => {})} />;
   }
 
   return <>
@@ -84,7 +83,6 @@ const TrackedStocksList = ({
         </div>
       )}
       
-      {!hasNewsInTrackedStocks}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {trackedStocks.map(stock => <StockCard key={stock.id} stock={stock} onToggleTracking={onToggleTracking} />)}
       </div>

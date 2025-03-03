@@ -14,14 +14,14 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onSearchClick }) => {
         <TrendingUp className="h-8 w-8 text-primary" />
       </div>
       
-      <h2 className="text-2xl font-semibold mb-2">No stocks tracked yet</h2>
+      <h2 className="text-2xl font-semibold mb-2">Henüz takip edilen hisse yok</h2>
       <p className="text-muted-foreground mb-6">
-        Add companies to your watchlist to receive news signals and market insights.
+        Haberler ve piyasa bilgilerini almak için hisseleri takip listenize ekleyin.
       </p>
       
       <Button onClick={onSearchClick} size="lg" className="gap-2">
         <Search className="h-4 w-4" />
-        <span>Search Companies</span>
+        <span>Şirket Ara</span>
       </Button>
     </div>
   );
