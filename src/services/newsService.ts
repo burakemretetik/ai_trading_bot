@@ -6,7 +6,7 @@ import { getTrackedStocks } from './stockService';
 import { getUserSettings, hasValidPhoneNumber, formatPhoneNumber } from '@/services/userSettingsService';
 
 // This function will check if there's any news for stocks the user is tracking
-export async function checkForNewsAndNotifyUser(): Promise<boolean> {
+export async function checkForNewsAndNotifyUser(forceNotify = false): Promise<boolean> {
   try {
     // Get the stock news mapping
     const response = await fetch('/stock_news_mapping.json');
@@ -34,6 +34,16 @@ export async function checkForNewsAndNotifyUser(): Promise<boolean> {
     const relevantNews: Record<string, string[]> = {};
     for (const symbol of trackedSymbols) {
       if (mapping.stock_news[symbol] && mapping.stock_news[symbol].length > 0) {
+        relevantNews[symbol] = mapping.stock_news[symbol];
+      }
+    }
+    
+    // If forceNotify is true, use all available news for testing
+    if (forceNotify && Object.keys(relevantNews).length === 0) {
+      console.log('Using all available news for testing');
+      // Use first two stocks from the mapping for testing
+      const testStocks = Object.keys(mapping.stock_news).slice(0, 2);
+      for (const symbol of testStocks) {
         relevantNews[symbol] = mapping.stock_news[symbol];
       }
     }
