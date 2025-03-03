@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '@/context/UserContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -120,6 +120,14 @@ export default function Auth() {
             </form>
           )}
         </CardContent>
+        <CardFooter className="flex flex-col items-center text-center">
+          <p className="text-xs text-muted-foreground mt-4">
+            Telefon numaranız sadece bildirim amaçlı kullanılır.{' '}
+            <Link to="/privacy" className="underline hover:text-primary">
+              Gizlilik Politikası
+            </Link>
+          </p>
+        </CardFooter>
       </Card>
     </AuthLayout>
   );
