@@ -11,18 +11,18 @@ interface RefreshNewsButtonProps {
 const RefreshNewsButton: React.FC<RefreshNewsButtonProps> = ({ onRefresh, loading }) => {
   return (
     <Button 
-      variant="outline" 
+      variant="ghost" 
       size="sm" 
       onClick={onRefresh} 
       disabled={loading}
-      className="w-full"
+      className="w-full text-xs text-muted-foreground hover:text-foreground"
     >
       {loading ? (
-        <RefreshCw className="h-4 w-4 animate-spin" />
+        <RefreshCw className="h-3 w-3 animate-spin" />
       ) : (
         <>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          <span>Refresh News</span>
+          <RefreshCw className="h-3 w-3 mr-1" />
+          <span>Refresh</span>
         </>
       )}
     </Button>

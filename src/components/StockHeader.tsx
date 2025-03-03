@@ -20,17 +20,18 @@ const StockHeader: React.FC<StockHeaderProps> = ({
 }) => {
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center space-x-3">
-        <div className="flex flex-col">
-          <div className="flex items-center">
-            <h3 className="font-semibold text-lg">{symbol}</h3>
-          </div>
-          <p className="text-sm text-muted-foreground">{name}</p>
-        </div>
+      <div className="flex flex-col">
+        <h3 className="font-medium text-lg">{symbol}</h3>
+        <p className="text-xs text-muted-foreground">{name}</p>
       </div>
       
-      <Button variant="ghost" size="icon" className="rounded-full" onClick={() => onToggleTracking(stockId)}>
-        <Star className={`h-5 w-5 ${tracked ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="h-8 w-8 rounded-full" 
+        onClick={() => onToggleTracking(stockId)}
+      >
+        <Star className={`h-4 w-4 ${tracked ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
       </Button>
     </div>
   );

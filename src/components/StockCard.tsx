@@ -19,8 +19,8 @@ const StockCard: React.FC<StockCardProps> = ({
   const { news, newsUrls, loading, handleRefreshNews } = useStockNews(stock);
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="pb-2">
+    <Card className="h-full flex flex-col bg-white dark:bg-card border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
+      <CardHeader className="pb-2 pt-4 px-4">
         <StockHeader 
           symbol={stock.symbol}
           name={stock.name}
@@ -30,12 +30,12 @@ const StockCard: React.FC<StockCardProps> = ({
         />
       </CardHeader>
       
-      <CardContent className="pt-2 flex-grow">
+      <CardContent className="pt-1 px-4 flex-grow">
         <StockNews news={news} newsUrls={newsUrls} />
       </CardContent>
       
       {(news.length > 0 || newsUrls.length > 0) && (
-        <CardFooter className="pt-2">
+        <CardFooter className="pt-0 px-4 pb-3">
           <RefreshNewsButton onRefresh={handleRefreshNews} loading={loading} />
         </CardFooter>
       )}
