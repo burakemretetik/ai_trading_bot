@@ -78,9 +78,9 @@ const WhatsAppSettings = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Label htmlFor="whatsapp-enabled" className="flex flex-col space-y-1">
-            <span>WhatsApp Bildirimleri</span>
+            <span>Bildirimleri Etkinleştir</span>
             <span className="font-normal text-xs text-muted-foreground">
-              Hisse haberleri için WhatsApp bildirimleri alın
+              Hisse haberleri için bildirimler alın
             </span>
           </Label>
           <Switch 
