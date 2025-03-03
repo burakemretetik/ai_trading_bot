@@ -1,5 +1,15 @@
 {
   "timestamp": "2025-03-02T23:46:33.915071",
   "updated": false,
-  "stock_news": {}
+  "stock_news": {
+    "ASELS": [
+      "https://www.bloomberght.com/aselsan-bmc-ile-yeni-sozlesme-imzaladi-3742401"
+    ],
+    "THYAO": [
+      "https://bigpara.hurriyet.com.tr/haberler/ekonomi-haberleri/thy-2024-yilinda-85-2-milyon-yolcuya-hizmet-verdi_ID1608355/"
+    ],
+    "TCELL": [
+      "https://bigpara.hurriyet.com.tr/haberler/ekonomi-haberleri/turkcellden-2024te-54-8-milyar-tl-yatirim_ID1608318/"
+    ]
+  }
 }
