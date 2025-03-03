@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, TrendingUp } from 'lucide-react';
+import { List, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface EmptyStateProps {
@@ -20,8 +20,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onSearchClick }) => {
       </p>
       
       <Button onClick={onSearchClick} size="lg" className="gap-2">
-        <Search className="h-4 w-4" />
-        <span>Şirket Ara</span>
+        <List className="h-4 w-4" />
+        <span>Tüm Hisseler</span>
       </Button>
     </div>
   );
