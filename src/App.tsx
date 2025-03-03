@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 import WhatsAppTest from "./pages/WhatsAppTest";
+import StockNewsMapping from "./pages/StockNewsMapping";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
                 <Route path="/stocks" element={<StockList />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/whatsapp-test" element={<WhatsAppTest />} />
+                <Route path="/stock-news-mapping" element={<StockNewsMapping />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
