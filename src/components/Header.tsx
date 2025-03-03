@@ -11,7 +11,7 @@ const Header = ({ onSettingsClick }: HeaderProps) => {
   return (
     <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
       <div className="flex h-16 items-center px-4 container mx-auto">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Haber Sinyalleri
         </h1>
         <div className="ml-auto flex items-center space-x-2">
