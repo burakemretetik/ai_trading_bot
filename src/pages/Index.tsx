@@ -15,12 +15,12 @@ export default function Index() {
   };
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col min-h-[calc(100vh-64px)]">
       <Header 
         onSettingsClick={handleSettingsClick}
       />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 flex-grow">
         <IndexHeader />
         
         {showSettings ? (
