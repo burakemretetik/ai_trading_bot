@@ -1,4 +1,4 @@
-# run_bot.py - Script to run the trading bot
+# run_bot.py - Script to run the trading bot with PyTorch support
 import argparse
 import pandas as pd
 import logging
@@ -9,6 +9,7 @@ from config import *
 from utils.data_loader import DataLoader
 from strategies.simple_moving_average import SMAStrategy
 from strategies.ml_strategy import MLStrategy
+from strategies.torch_ml_strategy import TorchMLStrategy
 from utils.backtester import Backtester
 
 # Create logs directory if it doesn't exist
@@ -93,7 +94,7 @@ def run_backtest(strategy_name, symbol, timeframe, start_date=None, end_date=Non
     Run a backtest for a specified strategy.
     
     Args:
-        strategy_name (str): Name of the strategy to use ('sma' or 'ml')
+        strategy_name (str): Name of the strategy to use ('sma', 'ml', or 'torch_ml')
         symbol (str): Trading pair symbol
         timeframe (str): Candlestick timeframe
         start_date (str, optional): Start date for backtest (YYYY-MM-DD)
@@ -118,6 +119,8 @@ def run_backtest(strategy_name, symbol, timeframe, start_date=None, end_date=Non
         strategy = SMAStrategy(short_window=20, long_window=50)
     elif strategy_name.lower() == 'ml':
         strategy = MLStrategy(threshold=0.002)
+    elif strategy_name.lower() == 'torch_ml':
+        strategy = TorchMLStrategy(threshold=0.002, hidden_dim=64, num_layers=2, dropout=0.2)
     else:
         logger.error(f"Unknown strategy: {strategy_name}")
         return
@@ -149,7 +152,7 @@ def run_live_trading(strategy_name, symbol, timeframe, paper_trading=True):
     Run live trading with specified strategy.
     
     Args:
-        strategy_name (str): Name of the strategy to use ('sma' or 'ml')
+        strategy_name (str): Name of the strategy to use ('sma', 'ml', or 'torch_ml')
         symbol (str): Trading pair symbol
         timeframe (str): Candlestick timeframe
         paper_trading (bool): Whether to use paper trading (simulation)
@@ -167,6 +170,8 @@ def run_live_trading(strategy_name, symbol, timeframe, paper_trading=True):
         strategy = SMAStrategy(short_window=20, long_window=50)
     elif strategy_name.lower() == 'ml':
         strategy = MLStrategy(threshold=0.002)
+    elif strategy_name.lower() == 'torch_ml':
+        strategy = TorchMLStrategy(threshold=0.002, hidden_dim=64, num_layers=2, dropout=0.2)
     else:
         logger.error(f"Unknown strategy: {strategy_name}")
         return
@@ -234,8 +239,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run trading bot')
     parser.add_argument('--mode', choices=['backtest', 'paper', 'live'], default='backtest',
                         help='Trading mode: backtest, paper trading, or live trading')
-    parser.add_argument('--strategy', choices=['sma', 'ml'], default='sma',
-                        help='Trading strategy to use: Simple Moving Average (sma) or Machine Learning (ml)')
+    parser.add_argument('--strategy', choices=['sma', 'ml', 'torch_ml'], default='sma',
+                        help='Trading strategy to use: Simple Moving Average (sma), scikit-learn ML (ml), or PyTorch ML (torch_ml)')
     parser.add_argument('--symbol', default=SYMBOL,
                         help='Trading symbol/pair')
     parser.add_argument('--timeframe', default=TIMEFRAME,

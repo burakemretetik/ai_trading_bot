@@ -4,9 +4,14 @@ pandas==2.0.3
 numpy==1.24.3
 python-dotenv==1.0.0
 
-# Machine learning
+# Machine learning - scikit-learn still needed for preprocessing
 scikit-learn==1.3.0
 joblib==1.3.1
+
+# PyTorch
+torch==2.1.0
+torchvision==0.16.0
+torchaudio==2.1.0
 
 # Data visualization
 matplotlib==3.7.2
