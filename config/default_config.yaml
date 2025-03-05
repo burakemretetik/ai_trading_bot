@@ -1,0 +1,60 @@
+# Default configuration for AI Trading Bot
+
+# General settings
+mode: backtest         # backtest, paper, live, simulated, recent, yfinance
+strategy: torch_ml     # sma, ml, torch_ml
+data_source: ccxt      # ccxt, yfinance, simulated, csv
+
+# Model settings
+model:
+  hidden_dim: 64
+  num_layers: 2
+  dropout: 0.2
+  learning_rate: 0.001
+  batch_size: 32
+  epochs: 100
+  test_size: 0.2
+  threshold: 0.002
+  retrain_period: 30
+
+# Backtest settings
+backtest:
+  initial_capital: 10000.0
+  commission: 0.001
+  start_date: "2023-01-01"
+  end_date: "2023-12-31"
+  enable_plotting: true
+  save_results: true
+  output_dir: "results"
+
+# Trading settings
+trading:
+  symbol: "BTCUSDT"
+  timeframe: "1h"
+  risk_per_trade: 0.02
+  max_open_trades: 3
+  stop_loss_pct: 0.05
+  take_profit_pct: 0.1
+  trailing_stop: false
+  trailing_stop_distance: 0.02
+
+# API settings (don't store credentials in config files, use .env instead)
+api:
+  exchange: "binance"
+  testnet: true
+  api_key: ""
+  api_secret: ""
+
+# Logging settings
+logging:
+  log_level: "INFO"
+  log_dir: "logs"
+  console_logging: true
+  file_logging: true
+  json_logging: false
+  max_file_size: 10485760  # 10 MB
+  backup_count: 5
+
+# Debug settings
+debug: false
+verbose: false
