@@ -1,1 +1,1 @@
-# Trading AI
+## AI Trading Bot
