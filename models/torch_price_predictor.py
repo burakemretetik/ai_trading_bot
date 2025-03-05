@@ -71,54 +71,119 @@ class TorchPricePredictor:
         """Create technical indicators as features."""
         data = df.copy()
         
+        # Log the initial data shape
+        logger.info(f"Creating features for {len(data)} data points")
+        if len(data) < 100:
+            logger.warning("Dataset may be too small for reliable feature creation")
+        
+        # Fill any existing NaN values in input data
+        for col in ['open', 'high', 'low', 'close', 'volume']:
+            if col in data.columns and data[col].isna().any():
+                logger.warning(f"Found NaN values in {col} column, filling with forward fill")
+                data[col] = data[col].fillna(method='ffill')
+        
         # Price-based features
         data['returns'] = data['close'].pct_change()
         data['log_returns'] = np.log(data['close'] / data['close'].shift(1))
         
-        # Moving averages
-        for window in [5, 10, 20, 50, 100]:
-            data[f'ma_{window}'] = data['close'].rolling(window=window).mean()
-            data[f'ma_ratio_{window}'] = data['close'] / data[f'ma_{window}']
+        # Moving averages - use smaller windows if data is limited
+        ma_windows = [5, 10, 20, 50]
+        if len(data) >= 100:
+            ma_windows.append(100)
+        
+        for window in ma_windows:
+            if len(data) >= window:
+                data[f'ma_{window}'] = data['close'].rolling(window=window, min_periods=1).mean()
+                data[f'ma_ratio_{window}'] = data['close'] / data[f'ma_{window}']
         
         # Volatility
-        for window in [5, 10, 20]:
-            data[f'volatility_{window}'] = data['returns'].rolling(window=window).std()
+        vol_windows = [5, 10, 20]
+        for window in vol_windows:
+            if len(data) >= window:
+                data[f'volatility_{window}'] = data['returns'].rolling(window=window, min_periods=1).std()
         
         # RSI (Relative Strength Index)
-        delta = data['close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-        rs = gain / loss
-        data['rsi_14'] = 100 - (100 / (1 + rs))
+        if len(data) >= 14:
+            delta = data['close'].diff()
+            gain = (delta.where(delta > 0, 0)).rolling(window=14, min_periods=1).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=14, min_periods=1).mean()
+            # Avoid division by zero
+            loss = loss.replace(0, np.nan)
+            rs = gain / loss
+            # Fill NaN values with 0.5 (neutral RSI)
+            rs = rs.fillna(1) 
+            data['rsi_14'] = 100 - (100 / (1 + rs))
         
-        # MACD (Moving Average Convergence Divergence)
-        data['ema_12'] = data['close'].ewm(span=12, adjust=False).mean()
-        data['ema_26'] = data['close'].ewm(span=26, adjust=False).mean()
-        data['macd'] = data['ema_12'] - data['ema_26']
-        data['macd_signal'] = data['macd'].ewm(span=9, adjust=False).mean()
-        data['macd_hist'] = data['macd'] - data['macd_signal']
+        # MACD - only calculate if we have enough data
+        if len(data) >= 26:
+            data['ema_12'] = data['close'].ewm(span=12, adjust=False, min_periods=1).mean()
+            data['ema_26'] = data['close'].ewm(span=26, adjust=False, min_periods=1).mean()
+            data['macd'] = data['ema_12'] - data['ema_26']
+            data['macd_signal'] = data['macd'].ewm(span=9, adjust=False, min_periods=1).mean()
+            data['macd_hist'] = data['macd'] - data['macd_signal']
         
         # Volume-based features
-        data['volume_ma_5'] = data['volume'].rolling(window=5).mean()
-        data['volume_ratio'] = data['volume'] / data['volume_ma_5']
+        if 'volume' in data.columns and len(data) >= 5:
+            data['volume_ma_5'] = data['volume'].rolling(window=5, min_periods=1).mean()
+            # Avoid division by zero
+            data['volume_ma_5'] = data['volume_ma_5'].replace(0, np.nan)
+            data['volume_ratio'] = data['volume'] / data['volume_ma_5']
+            data['volume_ratio'] = data['volume_ratio'].fillna(1)
         
         # Target variable: future returns (next day's return)
         data['target'] = data['returns'].shift(-1)
         
-        # Drop rows with NaN values
-        data = data.dropna()
+        # Fill remaining NaN values with 0 or appropriate values
+        for col in data.columns:
+            if data[col].isna().any():
+                nan_count = data[col].isna().sum()
+                logger.warning(f"Column {col} has {nan_count} NaN values, filling with appropriate values")
+                
+                if col in ['returns', 'log_returns', 'target']:
+                    # Fill with 0 (no change)
+                    data[col] = data[col].fillna(0)
+                elif 'ratio' in col:
+                    # Fill with 1 (no change)
+                    data[col] = data[col].fillna(1)
+                elif 'rsi' in col:
+                    # Fill with 50 (neutral)
+                    data[col] = data[col].fillna(50)
+                else:
+                    # Fill with mean
+                    data[col] = data[col].fillna(data[col].mean())
+        
+        logger.info(f"Feature creation complete. Data shape after feature creation: {data.shape}")
         
         return data
-    
+
     def prepare_data(self, df):
         """Prepare data for training or prediction."""
+        # Check if dataframe is empty
+        if df.empty:
+            logger.error("Empty dataframe provided for feature creation")
+            return pd.DataFrame()
+        
         # Create features
         data = self._create_features(df)
         
-        # Define features to use
-        self.features = [col for col in data.columns if col not in [
-            'open', 'high', 'low', 'close', 'volume', 'target'
-        ]]
+        # Define features to use (skip missing columns)
+        all_potential_features = [
+            'returns', 'log_returns', 
+            'ma_5', 'ma_10', 'ma_20', 'ma_50', 'ma_100',
+            'ma_ratio_5', 'ma_ratio_10', 'ma_ratio_20', 'ma_ratio_50', 'ma_ratio_100',
+            'volatility_5', 'volatility_10', 'volatility_20',
+            'rsi_14', 'ema_12', 'ema_26', 'macd', 'macd_signal', 'macd_hist',
+            'volume_ma_5', 'volume_ratio'
+        ]
+        
+        # Only include features that exist in the data
+        self.features = [col for col in all_potential_features if col in data.columns]
+        
+        logger.info(f"Selected {len(self.features)} features: {self.features}")
+        
+        # Make sure we have data
+        if len(data) == 0:
+            logger.error("No data left after feature creation")
         
         return data
     
@@ -128,6 +193,13 @@ class TorchPricePredictor:
         
         # Prepare data
         data = self.prepare_data(df)
+        
+        # Make sure we have enough data to train
+        if len(data) < 100:
+            logger.warning(f"Training with only {len(data)} samples, model may not perform well")
+            if len(data) < 30:
+                logger.error("Not enough data for training, need at least 30 samples")
+                return None
         
         # Split features and target
         X = data[self.features].values
@@ -149,7 +221,7 @@ class TorchPricePredictor:
         
         # Create DataLoader for batching
         train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
-        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
+        train_loader = DataLoader(train_dataset, batch_size=min(self.batch_size, len(X_train)), shuffle=True)
         
         # Initialize model
         self.model = PricePredictionModel(
@@ -250,6 +322,10 @@ class TorchPricePredictor:
         
         # Prepare data
         data = self.prepare_data(df)
+        
+        if data.empty:
+            logger.error("No valid data for prediction after preprocessing")
+            return None
         
         # Extract features
         X = data[self.features].values
