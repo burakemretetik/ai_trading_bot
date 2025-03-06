@@ -1,20 +1,36 @@
-# strategies/simple_moving_average.py - Strategy implementation
+# strategies/sma_strategy.py - Simple Moving Average strategy
 import pandas as pd
 import numpy as np
 import logging
+from strategies.strategy import Strategy
 
 logger = logging.getLogger(__name__)
 
-class SMAStrategy:
+class SMAStrategy(Strategy):
     """Simple Moving Average crossover strategy."""
     
-    def __init__(self, short_window, long_window):
-        """Initialize strategy with window sizes."""
+    def __init__(self, short_window=20, long_window=50):
+        """
+        Initialize SMA strategy with window sizes.
+        
+        Args:
+            short_window: Short moving average window size
+            long_window: Long moving average window size
+        """
+        super().__init__("SMA")
         self.short_window = short_window
         self.long_window = long_window
     
     def generate_signals(self, data):
-        """Generate buy/sell signals based on SMA crossover."""
+        """
+        Generate buy/sell signals based on SMA crossover.
+        
+        Args:
+            data: DataFrame with price data
+            
+        Returns:
+            DataFrame with signals
+        """
         logger.info(f"Generating signals using SMA strategy: short={self.short_window}, long={self.long_window}")
         
         # Make a copy of the data
@@ -31,12 +47,16 @@ class SMAStrategy:
         df.loc[df['short_ma'] > df['long_ma'], 'signal'] = 1
         df.loc[df['short_ma'] < df['long_ma'], 'signal'] = -1
         
-        # Generate crossover signals
+        # Generate position changes (this will be used by the backtester)
         df['position'] = df['signal'].diff()
         
-        # Drop NaN values
-        df.dropna(inplace=True)
+        # Fill NaN values
+        df['position'] = df['position'].fillna(0)
         
-        logger.info(f"Generated {len(df[df['position'] == 2])} buy signals and {len(df[df['position'] == -2])} sell signals")
+        # Count signals
+        buy_signals = (df['position'] == 2).sum()
+        sell_signals = (df['position'] == -2).sum()
+        
+        logger.info(f"Generated {buy_signals} buy signals and {sell_signals} sell signals")
         
         return df
