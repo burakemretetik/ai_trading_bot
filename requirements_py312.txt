@@ -1,0 +1,27 @@
+# Requirements for Python 3.12
+# Core dependencies - updated for Python 3.12 compatibility
+pandas>=2.0.0
+numpy>=1.26.0
+matplotlib>=3.7.1
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# API and data sources
+ccxt>=3.0.0
+yfinance>=0.2.20
+requests>=2.31.0
+beautifulsoup4>=4.12.2
+platformdirs>=4.1.0
+
+# Machine learning
+torch>=2.0.1
+scikit-learn>=1.2.2
+joblib>=1.2.0
+
+# Dev tools and testing
+pytest>=7.3.1
+black>=23.3.0
+pytest-cov>=4.1.0
+
+# Python 3.12 requires newer dependencies with pre-compiled wheels
+# This file is designed to work with --prefer-binary flag

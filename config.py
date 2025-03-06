@@ -1,28 +1,31 @@
-# config.py - Simplified configuration
+# config.py - Enhanced configuration
 import os
 import yaml
 import logging
 from typing import Dict, Any
+from dotenv import load_dotenv  # Added python-dotenv dependency
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
-def load_dotenv():
-    """Load environment variables from .env file."""
-    try:
-        with open('.env', 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    key, value = line.split('=', 1)
-                    os.environ[key] = value.strip('"\'')
-        return True
-    except FileNotFoundError:
-        logger.warning(".env file not found")
-        return False
-    except Exception as e:
-        logger.error(f"Error loading .env file: {e}")
-        return False
+def deep_merge(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Recursively merge dictionaries.
+    
+    Args:
+        dict1: Base dictionary
+        dict2: Dictionary to merge on top of base
+        
+    Returns:
+        Merged dictionary
+    """
+    result = dict1.copy()
+    for key, value in dict2.items():
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            result[key] = deep_merge(result[key], value)
+        else:
+            result[key] = value
+    return result
 
 def load_config(config_path="config/default_config.yaml") -> Dict[str, Any]:
     """
@@ -46,8 +49,10 @@ def load_config(config_path="config/default_config.yaml") -> Dict[str, Any]:
         logger.error(f"Error loading config file: {e}")
         return {}
 
-# Load environment variables
-load_dotenv()
+# Load environment variables using python-dotenv
+dotenv_loaded = load_dotenv()
+if not dotenv_loaded:
+    logger.warning(".env file not found or could not be loaded")
 
 # Default configuration
 DEFAULT_CONFIG = {
@@ -88,8 +93,8 @@ DEFAULT_CONFIG = {
 # Load user configuration
 USER_CONFIG = load_config()
 
-# Merge configurations
-CONFIG = {**DEFAULT_CONFIG, **USER_CONFIG}
+# Merge configurations using deep merge
+CONFIG = deep_merge(DEFAULT_CONFIG, USER_CONFIG)
 
 # Extract key settings for easy access
 MODE = CONFIG['mode']

@@ -1,11 +1,11 @@
 # Default configuration for AI Trading Bot
 
 # General settings
-mode: backtest         # backtest, paper, live, simulated, recent, yfinance
-strategy: torch_ml     # sma, ml, torch_ml
+mode: backtest         # backtest, paper, live, simulated, compare, optimize
+strategy: sma         # sma, ml, torch_ml
 data_source: ccxt      # ccxt, yfinance, simulated, csv
 
-# Model settings
+# Model settings for ML strategies
 model:
   hidden_dim: 64
   num_layers: 2
@@ -16,34 +16,52 @@ model:
   test_size: 0.2
   threshold: 0.002
   retrain_period: 30
+  feature_engineering: advanced  # basic, advanced
+  min_confidence: 0.6
+  validation: true
+
+# SMA strategy settings
+sma_strategy:
+  short_window: 20
+  long_window: 50
+  filter_noise: true
+  confirm_days: 1
+
+# Risk management settings
+risk:
+  risk_per_trade: 0.02       # Percentage of capital to risk per trade
+  max_position_size: 0.2     # Maximum position size as % of capital
+  stop_loss: 0.05            # Stop loss percentage
+  take_profit: 0.1           # Take profit percentage
+  trailing_stop: false       # Enable trailing stop loss
+  trailing_stop_distance: 0.02  # Trailing stop distance
 
 # Backtest settings
 backtest:
   initial_capital: 10000.0
   commission: 0.001
+  slippage: 0.0005           # Slippage as percentage of price
   start_date: "2023-01-01"
   end_date: "2023-12-31"
   enable_plotting: true
   save_results: true
   output_dir: "results"
+  monte_carlo: false         # Run Monte Carlo analysis
+  mc_iterations: 1000        # Number of Monte Carlo iterations
 
 # Trading settings
 trading:
   symbol: "BTCUSDT"
   timeframe: "1h"
-  risk_per_trade: 0.02
   max_open_trades: 3
-  stop_loss_pct: 0.05
-  take_profit_pct: 0.1
-  trailing_stop: false
-  trailing_stop_distance: 0.02
+  dry_run: true              # Run in dry-run mode (no real trades)
+  refresh_interval: 60       # Data refresh interval in seconds
 
 # API settings (don't store credentials in config files, use .env instead)
 api:
   exchange: "binance"
   testnet: true
-  api_key: ""
-  api_secret: ""
+  rate_limit: true
 
 # Logging settings
 logging:
@@ -58,3 +76,28 @@ logging:
 # Debug settings
 debug: false
 verbose: false
+
+# Data settings
+data:
+  cache_data: true
+  cache_dir: "data/cache"
+  csv_directory: "data/csv"
+  indicators:
+    - rsi
+    - macd
+    - bollinger
+    - volatility
+
+# Notification settings
+notifications:
+  enabled: false
+  telegram:
+    enabled: false
+    token: ""
+    chat_id: ""
+  email:
+    enabled: false
+    smtp_server: ""
+    port: 587
+    username: ""
+    to_address: ""
